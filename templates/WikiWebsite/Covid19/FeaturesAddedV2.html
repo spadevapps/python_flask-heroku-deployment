@@ -1,0 +1,2991 @@
+<html> //FIX SLIDERVPAUSE
+//pauses with no data (i.e. 60)
+
+<head>
+  <meta charset='utf-8' />
+  <title>Map Demo</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.css' rel='stylesheet' />
+
+
+
+<style>
+
+ body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+  }
+
+  #map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 20px;
+    line-height: 30px;
+  }
+
+  h2 {
+    font-size: 14px;
+    line-height: 20px;
+    margin-bottom: 10px;
+  }
+
+  a {
+    text-decoration: none;
+    color: #2DC4B2;
+  }
+
+  #console {
+    position: absolute;
+    width: 240px;
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: white;
+  }
+
+  .session {
+    margin-bottom: 20px;
+  }
+
+  .row {
+    height: 12px;
+    width: 100%;
+  }
+
+  .colors {
+    background: linear-gradient(to right, #2DC4B2, #3BB3C3, #669EC4, #8B88B6, #A2719B, #AA5E79);
+    margin-bottom: 5px;
+  }
+
+  .label {
+    width: 15%;
+    display: inline-block;
+    text-align: center;
+  }
+
+    .listing-group {
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        font-weight: 600;
+        position: absolute;
+        top: 15px;
+        right: 7%;
+        z-index: 1;
+        border-radius: 3px;
+        /* max-width: 20%; */
+        color: #fff;
+        display: flex;
+    }
+
+    .listing-group input[type=checkbox]:first-child + label {
+        border-radius: 3px 3px 3px 3px;
+    }
+
+    .listing-group label:last-child {
+        border-radius: 0 3px 3px 0px;
+        border: none;
+    }
+
+    .listing-group input[type=checkbox] {
+        display: none;
+    }
+
+    .listing-group input[type=checkbox] + label {
+        background-color: #3386c0;
+        display: block;
+        cursor: pointer;
+        padding: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    .listing-group input[type=checkbox] + label {
+        background-color: #3386c0;
+        text-transform: capitalize;
+    }
+
+    .listing-group input[type=checkbox] + label:hover,
+    .listing-group input[type=checkbox]:checked + label {
+        background-color: #4ea0da;
+    }
+
+    .listing-group input[type=checkbox]:checked + label:before {
+        /* content: '✔'; */
+        margin-right: 5px;
+    }
+
+
+
+  </style>
+</head>
+
+<body>
+
+<style>
+
+
+    #menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0,0,0,0.4);
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    #menu a {
+        font-size: 13px;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0,0,0,0.25);
+        text-align: center;
+    }
+
+    #menu a:last-child {
+        border: none;
+    }
+
+    #menu a:hover {
+        background-color: #f8f8f8;
+        color: #404040;
+    }
+
+    #menu a.active {
+        background-color: #3887be;
+        color: #ffffff;
+    }
+
+    #menu a.active:hover {
+        background: #3074a4;
+    }
+
+    .legend-overlay {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        font-family: Arial, sans-serif;
+        overflow: auto;
+        border-radius: 3px;
+        display: none;
+      }
+
+      #mapLegend {
+        padding: 10px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        line-height: 18px;
+        margin-bottom: 20px;
+        width: 250px;
+        max-height: 210%;
+      }
+
+      .legend-key {
+        display: inline-block;
+        border-radius: 20%;
+        width: 10px;
+        height: 10px;
+        margin-right: 5px;
+      }
+/* Used for the dropdown links */
+      .dropdown {
+        position: absolute;
+        background: #fff;
+        width: 120px;
+        right: 120px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        background-color: lightblue;
+        display: none;
+        top: 160px;
+      }
+
+      #increment {
+        display: inline;
+      }
+
+      #numberIncrement {
+        width: 5em;
+      }
+
+</style>
+<div id='map'></div>
+
+
+  <nav id="menu"></nav>
+
+
+  <div id='console'>
+
+    <div class='session'>
+
+
+    <div class='session' id='sliderbar'>
+        <h1>Day: <label id='active-hour'>0</label></h1>
+        <input id='slider' class='row' type='range' min='0' max='182' step='1' value='0' />
+    </div>
+    <h2>Slider Increment: 1</h2>
+  </div>
+
+
+
+<div id='mapMenu'>
+    <input id='basic' type='radio' name='rtoggle' value='basic' >
+    <label for='basic'>Basic</label>
+    <input id='streets' type='radio' name='rtoggle' value='streets' checked='checked'>
+    <label for='streets'>Streets</label>
+  <!--  <input id='bright' type='radio' name='rtoggle' value='bright'>
+    <label for='bright'>Bright</label>
+    <input id='light' type='radio' name='rtoggle' value='light'>
+    <label for='light'>Light</label>
+    <input id='dark' type='radio' name='rtoggle' value='dark'>
+    <label for='dark'>Dark</label>
+    <input id='satellite' type='radio' name='rtoggle' value='satellite'>
+    <label for='satellite'>Satellite</label> -->
+</div>
+
+<nav id='listing-group' class='listing-group'>
+    <input type="checkbox" id="Play" name="box" />
+    <label for="Play">Play</label>
+</nav>
+<!--
+<div id='Info'></div>
+<div class='map-overlay' id='features'><div id='pd'><p>Hover over a state!</p></div></div>
+<div class='map-overlay' id='legend'></div>
+
+<div id='Info2'></div>
+<div class='map-overlay' id='features'><div id='pe'><p></p></div></div>
+<div class='map-overlay' id='legend'></div>
+
+-->
+
+</div>
+</div>
+<div class="legend-overlay" id="mapLegend"></div>
+
+  <script>
+//Allows the user to check one, and only of the console buttons
+function oneCheckbox(checkbox) {
+        var checkboxes = document.getElementsByName("box");
+        for (var i = 0; i < checkboxes.length; i++) {
+          if (checkboxes[i] !== checkbox) {
+            checkboxes[i].checked = false;
+          }
+        }
+      }
+
+      //Allows the user to move the slider while a button is checked
+      function moveSliderWhenButtonIsClicked(e) {
+        var checkboxes = document.getElementsByName("box");
+        var trueCheck;
+        for (var i = 0; i < checkboxes.length; i++) {
+          if (checkboxes[i].checked === true) {
+            //trueCheck remembers which one was clicked before
+            trueCheck = checkboxes[i];
+            checkboxes[i].checked = false;
+          } else {
+            checkboxes[i].checked = false;
+          }
+        }
+        return trueCheck;
+      }
+
+      //makes every checkbox in console false
+      function clearChecked() {
+        var checkboxes = document.getElementsByName("box");
+        for (var i = 0; i < checkboxes.length; i++) {
+          checkboxes[i].checked = false;
+        }
+      }
+
+      //checks to see which (if any) checkbox is checked and returns said checkbox
+      function isAnyBoxChecked() {
+        var checkboxes = document.getElementsByName("box");
+        var isItClicked = false;
+        for (var i = 0; i < checkboxes.length; i++) {
+          if (checkboxes[i].checked === true) {
+            isItClicked = true;
+          }
+        }
+        return isItClicked;
+      }
+
+      //used for having just one button checked at a time
+      var play = document.getElementById("Play");
+
+      //if the play button is clicked, then make that the only button clicked
+      play.addEventListener("click", function () {
+        oneCheckbox(play);
+      });
+
+
+  //mapboxgl.accessToken = 'pk.eyJ1Ijoic3BhcHBsMTkiLCJhIjoiY2tjeG5janAxMDFvcDJ0cGRnbXd0d3B2YyJ9.umub0gmxB5xWZ_F6zyy-YQ';
+  mapboxgl.accessToken = 'pk.eyJ1Ijoic3BhcHBsMTkiLCJhIjoiY2tjeG5janAxMDFvcDJ0cGRnbXd0d3B2YyJ9.umub0gmxB5xWZ_F6zyy-YQ';
+  // account token
+
+  //add map
+  //356-420
+  //210 - 268
+  //1818 2006
+  //2100-2274
+  //2296 - 2314
+  //2356 - 2365
+  var map = new mapboxgl.Map({
+    container: 'map', // container id specified in the HTML
+    style: 'mapbox://styles/mapbox/streets-v9', // style URL
+    center: [20, 20], // initial map center in [lon, lat]
+    zoom: 1
+  });
+
+var tracker = []
+for (var i = 0; i<= 182; i++) {
+  tracker[i] = i;
+}
+//356-420
+//210 - 268
+//1818 2006
+//2100-2274
+//2296 - 2314
+//2356 - 2365
+var VTarr = [
+ 'spappl19.ckd7nlle000fg24s8qidsef9z-0kohp', //0
+'spappl19.ckd7oww4a00oj25kxbq0ekwv4-4f44p' ,
+'spappl19.ckd7q6td601be29mljum0oxjl-5yp82' ,
+'spappl19.ckd7q7djs0ldt22mogcjtj0ka-2vkv8' ,
+'spappl19.ckd7q815h038k24jzmavcigrn-6uvh1' ,
+'spappl19.ckd7qabm9006w22o47oe76vd2-9mlra' ,
+'spappl19.ckd7qck584b3k29n7h1fdzue5-1idjz' ,
+'spappl19.ckd7qedhw0m0s2amom0r8athz-2exej' ,
+'spappl19.ckd7qfaxq018d25kxuobtaew5-6wxvi' ,
+'spappl19.ckd7qgs6x44yu27l9w8qhvqa9-06oy0' ,
+'spappl19.ckd7qkgcj63uz22jyy9m5o4oi-621x1' , //10
+'spappl19.ckd7ql4684lid26mhuzo0ie6q-7ny7k',
+'spappl19.ckd7qlnno6eab29jyh3fcxbnl-865c7',
+'spappl19.ckd7qm7gj00ak23o49dmgnwkx-5efur',
+'spappl19.ckd7qmpbn04xq2brt80nb32tq-6gr5d',
+'spappl19.ckd7qn8oc00uh23jltwi6o102-8fgaa',
+'spappl19.ckd7qnqgv4b6h29n76takh2b5-04pjb',
+'spappl19.ckd7qq00101ca25kxx2slmplc-5rkh6',
+'spappl19.ckd7qqhdc00yo2ajlw8y6a4oe-9uvjq',
+'spappl19.ckd7qvj1m4oph25mhwp68tqlr-2fvmt',
+'spappl19.ckd7qw6ge00wb28jlcc1rqhq5-9mniq', //20
+'spappl19.ckd7qwtff03f324jzrnzr4c3z-6h6zz',
+'spappl19.ckd7qxdld018c22mleuu6wfva-3my99',
+'spappl19.ckd7qxwit00dp23o4bplqzakd-9v1ed',
+'spappl19.ckd7qyly4018t22mltfvhmw7m-88iko',
+'spappl19.ckd7qzawu04ry2artzk5eqlap-8sywp',//25
+'spappl19.ckd7qzzb400y323jlyum7t51r-7497d',
+'spappl19.ckd7r0olr00g622o4wdnlcbxe-8s1lx',
+'spappl19.ckd7r18wm05us24rtid7t9m20-0jpsw',
+'spappl19.ckd7r200e01lg29ml9vm81rqr-558z3',
+'spappl19.ckd7r2kf70jw429mo4j4d4dhz-1dffg', //30
+'spappl19.ckd7r4nw1455z27l94afdxoka-157rh',
+'spappl19.ckd7r59110jx129mocf1nqjpc-4ugid',
+'spappl19.ckd7r5vcn643j22jyjdh7cb80-8h5eq',
+'spappl19.ckd7r6g16452j23n75crafe8o-53ccg',
+'spappl19.ckd7r7tfp028423oaxmkpifnl-1f28b', //35
+'spappl19.ckd7r8jyd01jq25kxwfpo2eqz-20nma',
+'spappl19.ckd7r99db4otf25mhctma0aev-4jk45',
+'spappl19.ckd7rbm7z4wej25l9zf3xrj6w-91h9k',
+'spappl19.ckd7rczj501fm23kx5v0co25u-2b6fq',
+'spappl19.ckd7rfof7647722jyvbwuemqu-8fd0a',//40
+'spappl19.ckd7rgftz016e2ajl5fb4fs2m-4y0ry',
+'spappl19.ckd7rhayi01bw2amlz75jsqpe-8gxe9',
+'spappl19.ckd7rj23a648m22jy4nf5g3vf-8bn1t',
+'spappl19.ckd7rlvf901fv22ml862h1olx-2c4k9',
+'spappl19.ckd7rmpjm47sz24l9m8vylhaj-5hak1',
+'spappl19.ckd7royzd03lj27jz1gvvf18f-3lzri',
+'spappl19.ckd7rpjie44n22an7xzjodz21-6nv14',
+'spappl19.ckd7rvb2k6eo529jy32ju80v3-2yx1l',
+'spappl19.ckd7s762z002c2anurh0vyfr4-7gfk8',
+'spappl19.ckd7s83wx44u82an7g1x6mep1-6l5sb', //50
+'spappl19.ckd7sb38k0k7b29moqhqk7tw8-83ajj',
+'spappl19.ckd7sc04h02g92goah2hoy6z0-9z9m5',
+'spappl19.ckd7scx8x02gm2goaxzdpjvkf-9kumc',
+'spappl19.ckd7sdnmm6evm29jyp5b0197l-6u4ty',
+'spappl19.ckd7seggz01k02aml1b9e5dnm-45f30',//55
+'spappl19.ckd7sfg4h00la29o45h2is96a-0wb8a',
+'spappl19.ckd7sgeck040l24jz25s4n4ss-1fgh1',
+'spappl19.ckd7sh94u01h823jlk1x01xyh-76wdt',
+'spappl19.ckd7sht4i01ig2ajl1f941ip7-3ef63',
+'spappl19.ckd7sigjq02t92aoakl2r6on7-22aih', //60
+'spappl19.ckd7uemjo03ao2goacntns85p-5kw4c',
+'spappl19.ckd7uf4u901jv2ao4l0ty68ad-51llk',
+'spappl19.ckd7ufvos040q2hjz82dg5ly8-6wcs3',
+'spappl19.ckd7ugu2w024s2ajlzjc6anhf-3435i',
+'spappl19.ckd7uhfvo04tg24jz9wonr6oq-8bynt', //65
+'spappl19.ckd7ui8vk0ngc2amobhwp1ggq-57t9d',
+'spappl19.ckd7uiuxh03cc2goagccn281m-3vdsp',
+'spappl19.ckd7ujmys04tz24jzvu8gyxax-5db1r',
+'spappl19.ckd7ukn7f0mer22mo52ztl2u1-44i7y',
+'spappl19.ckd7ul9uu03df2goavhz253tb-1gj7q', //70
+'spappl19.ckd7uluvr01uj28jlorrciuos-2h4dj',
+'spappl19.ckd7umes301ci22o42ayqrp75-4mqy8',
+'spappl19.ckd7undic4x8i25l9u2s545pu-9k7vv',
+'spappl19.ckd7uo5yq45lc2an7aop62oto-9qn8s',
+'spappl19.ckd7uowx304302hjzl94zv9p4-884yh', //75
+'spappl19.ckd7upnrz02862ajl05urs62o-3n94s',
+'spappl19.ckd7uqmv401k123o4p8t9ipbv-9foy0',
+'spappl19.ckd7urbfo01oj2ao4ysixdi6w-74wfh',
+'spappl19.ckd7usn5b029o2ajlqws1vc4w-9mqvh',
+'spappl19.ckd7ut9vr01dz22o48ns858uf-4il81', //80
+'spappl19.ckd7uuoak02ai2ajlb701q434-6g11j',
+'spappl19.ckd7uvs5q00q924nuv0js8e8m-65psl',
+'spappl19.ckd7uworh01mb23o4ev5xyahr-9voa6',
+'spappl19.ckd7uxsbs658e22jy1fhhr2rx-3mrt7',
+'spappl19.ckd7uystq44ks2dmhlbdunwoo-96gn1', //85
+'spappl19.ckd7uzoed4i4x22n7oq22agxn-02v8a',
+'spappl19.ckd7v0au24xcg25l9xhmnk1vs-0p71h',
+'spappl19.ckd7v11bh659i22jy59tivgii-1hb48',
+'spappl19.ckd7v1pj704zy24jzlqf9j9mm-0880t',
+'spappl19.ckd7v2tij03k42goam8h4q45c-70jc8',//90
+'spappl19.ckd7v3fnq6ft329jyjq0y2wmy-8l45d',
+'spappl19.ckd7v43tu00tb24nuijuogncl-5g3hq',
+'spappl19.ckd7v4vvj033d29mlo1i8ji5r-15ept',
+'spappl19.ckd7v6w6503lo2goazhxsjlw3-2wtc9',
+'spappl19.ckd7v8g225xb423jyw35ryyib-0fulr',//95
+'spappl19.ckd7v93fk4cey29n7g4uuv2hm-3lu1u',
+'spappl19.ckd7va1im031325kx5anhqvao-6iav3',
+'spappl19.ckd7vba9e0mkx22mon0eyvcib-42zuf',
+'spappl19.ckd7vc9wr036w29mlukx8xvv3-0yokd',
+'spappl19.ckd7vdh03030a23mlu9sxmxzm-76ik5',//100
+'spappl19.ckd8654pk57ks2cl9fyvo53zn-7vhp8',
+'spappl19.ckd867pz3513m25l96c2r0ekk-9li2w',
+'spappl19.ckd868dvu04tt23nuavew1enb-53rte',
+'spappl19.ckd86925p063p22mlvoz28ipr-98rbn',
+'spappl19.ckd869t9h066x22kx4k0n20c8-5g0eh',//105
+'spappl19.ckd86b80n49z727l9dau3346p-3qp74',
+'spappl19.ckd86c1o7061l23mln0dep7q3-61uti',
+'spappl19.ckd86czdh49zo27l9hn1v31n1-7rkrg',
+'spappl19.ckd86dz1i046l2bnutvjwz01h-17b7i',
+'spappl19.ckd86h6rt03dr2bs6f8ealpm6-4sn76',
+'spappl19.ckd86hyxw05f123kxi5kd50g7-0dafr',//182
+'spappl19.ckd86ily605rq2amlcce0wbsm-5xdqn',
+'spappl19.ckd86jhr604wj23numluf0owi-0t4mx',
+'spappl19.ckd86l6f304952bnurhmnz0yf-9smfp',
+'spappl19.ckd86lwws07082ajl0icjhx80-2yfpl',
+'spappl19.ckd86o7la06gl24oandhwrfjg-0nnlt',
+'spappl19.ckd86u6g9072c2ajlqhkgejlm-666hg',
+'spappl19.ckd86utg34a7w2an7dgdzflwj-7hx57',
+'spappl19.ckd86vgmk62hl2bjymoyzhzcb-3yhyl',
+'spappl19.ckd86w8k1044j24s6thy4gdmd-0xaps', //120
+'spappl19.ckd86wwrd68vn22jyrof33wcv-33pay',
+'spappl19.ckd86xm5l611x23jytxc1t9ah-1m343',
+'spappl19.ckd86yhvs03go2ds62zxy7sxx-6vsy2',
+'spappl19.ckd86z9c103h12ds6kdbyh1w2-908d0',
+'spappl19.ckd86zusi06dr22kxdwu6d229-1ouzh',
+'spappl19.ckd870i694fnj29n7m0oo3nwd-3p4a3',
+'spappl19.ckd871c2l49qh23n71g3d2jgh-9rr0k',
+'spappl19.ckd871yss03ju2bs6r4piuywq-0reew',
+'spappl19.ckd872z9z483z2dmhgzedefik-23eug',
+'spappl19.ckd8743mv05qr23jlu47prk25-9ns7l', //130
+'spappl19.ckd874q3u4ui125mhl2ggpu2f-9pmw6',
+'spappl19.ckd875djo03j32ds6968d1jr9-8u9cq',
+'spappl19.ckd87619z06am23mlmfuccto9-6j2es',
+'spappl19.ckd876r0205yk2amlud77mrzw-9ssm4',
+'spappl19.ckd877k43081p2goa7owl8uk8-6v6wr',
+'spappl19.ckd87b254089k27jz0lqq0ey4-3ffo9',
+'spappl19.ckd87boi74lt822n7s6hnmod3-0zov7',
+'spappl19.ckd87c9c1486o2dmhzphqxce7-0o27g',
+'spappl19.ckd87d46i04d324nutmb7kgqm-5sn3b',
+'spappl19.ckd87jwys06it22kx8frnt412-4rzph', //140
+'spappl19.ckd87np4r4ftv29n7n14up1pa-2frct',
+'spappl19.ckd87sf0l51jq25l9k8h77dc9-2m2l2',
+'spappl19.ckd94rx8n0kl922kxy0vnxbqr-0cjfe',
+'spappl19.ckd950y8f0n5e24jz9laq4t0t-6o823',
+'spappl19.ckd951o7s0jfo23o4r6lhlr6e-3erxa',
+'spappl19.ckd952cyi006429o1l4mgz4st-8eex5',
+'spappl19.ckd95u4km0mnx2goaes3vrsc4-7jtug',
+'spappl19.ckd96edbn4orq23n779hylll2-3mair',
+'spappl19.ckd96fsfy4ua32cmh49py92vy-0foqd',
+'spappl19.ckd96gext01c429rqk0vem6e7-15nj5', //150
+'spappl19.ckd96hc394p2f2an7tlgonuyc-2jem5',
+'spappl19.ckd96igrx00am2cplvev76qxv-2e5xs',
+'spappl19.ckd96jgbk0khh2ao4a0hj33wv-5g07u',
+'spappl19.ckd96kuqv00ca2bpl8g4n166k-6atv1',
+'spappl19.ckd96n5x40ltl2aoa25rjtq0d-2dwf1',
+'spappl19.ckd96oe0m50g622n7fy68gg3s-96mmw',
+'spappl19.ckd96qspu0l5h22kxz3kkukfu-36hce',
+'spappl19.ckd96rkn10m4n25jznflazo8l-85gjz',
+'spappl19.ckd96sdeh0lt523oa2vp2gbey-6eaur',
+'spappl19.ckd96tmnm0lzv2ajl14nmkq4a-6zrm1', //160
+'spappl19.ckd96ulcn0mtn2hjzgamotc34-6xmzg',
+'spappl19.ckd96v8od6noq22jy5q7o7u74-1d32r',
+'spappl19.ckd96wf3p4owi23n79gsma2xf-4x4hn',
+'spappl19.ckd96x21r0lvy2aoa8dewn2ou-36wvi',
+'spappl19.ckd96xqj80klf2ao4f2131e7b-32541',
+'spappl19.ckd96yeu359bc25mhh6upbi07-1hcgq',
+'spappl19.ckd96zwug0kae28jlvwdn2f41-9lmvb',
+'spappl19.ckd970mvp0m7c25jzdk4iq74p-6d2us',
+'spappl19.ckd971baq50jr22n74f7559iu-9fkgh',
+'spappl19.ckd971wsw01ix23rqrsqxfeoz-4ibrv', //170
+'spappl19.ckd972tg16g4z23jy4vakxj45-0nyqf',
+'spappl19.ckd973ctm50kf22n7x91m1pbp-48l2y',
+'spappl19.ckd973xmj01iw29rq1jd13t59-05wrd',
+'spappl19.ckd974psl4oyd23n7skp1rs89-85qsb',
+'spappl19.ckd975fvj0k8n22jl8x0fkjp4-3op5c',
+'spappl19.ckd97628w00il2bplv1bux8zp-9jzv8',
+'spappl19.ckd978sxi002y23nyeqyi4i7n-2evy1',
+'spappl19.ckd979grm4n072dmhoz7iroer-6ihsn',
+'spappl19.ckd97aeuy0k1h23o44yt8zlcv-6u955',
+'spappl19.ckd97b29b0nru24jzzhzpdf2i-05lv0', //180
+'spappl19.ckd97by2u6yd529jyzxfdsz9w-9oj5f',
+'spappl19.ckd97e1vc0ks723jlwd7jqb28-524p5'
+]
+
+
+ map.on('load', function() {
+
+ var layers = map.getStyle().layers;
+    // Find the index of the first symbol layer in the map style
+    var firstSymbolId;
+    for (var i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+            firstSymbolId = layers[i].id;
+            break;
+        }
+    }
+
+    for (var i = 0; i <= VTarr.length; i++) {
+      map.addSource('coronavirus' + i, {
+              'type': 'vector',
+              'url': 'mapbox://' + VTarr[i]
+          });
+    }
+
+
+
+
+
+
+/*
+    map.addSource('corona', {
+            'type': 'vector',
+            'url': 'mapbox://spappl19.bgvcggl0'
+        }); */
+var zoomThreshold = 4;
+
+var findData= "./geoData/coronavirus"
+map.addLayer({
+        'id': 'total cases',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './geoData/coronavirus.geojson'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+      //  "filter": ["==", 0, 100],
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "TotalCases"],
+  0,
+  "hsl(0, 100%, 100%)", //white
+  25,
+  "hsl(0, 100%, 90%)", //pink
+  100,
+  "hsl(0, 100%, 50%)", //red
+  1000,
+  "hsl(47, 100%, 50%)", //orange
+  100000,
+  "hsl(250, 100%, 80%)", //light purple
+  250000,
+  "hsl(250, 100%, 50%)", // blue
+  750000,
+  "hsl(250, 15%, 40%)",// green grey
+  2000000,
+  "hsl(250, 100%, 0%)",//black
+
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+
+
+
+
+var findData= "./geoData/coronavirus"
+map.addLayer({
+        'id': 'new cases',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './geoData/coronavirus.geojson'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+      //  "filter": ["==", 0, 100],
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "NewCases"],
+  0,
+  "hsl(0, 100%, 100%)", //white
+  500,
+  "hsl(0, 100%, 75%)", //pink
+  1000,
+  "hsl(0, 100%, 70%)", //
+  5000,
+  "hsl(0, 100%, 65%)", //
+  12000,
+  "hsl(0, 100%, 60%)", //
+  20000,
+  "hsl(0, 100%, 55%)", //
+  30000,
+  "hsl(0, 15%, 50%)",//
+  40000,
+  "hsl(0, 100%, 45%)",
+  50000,
+  "hsl(0, 100%, 40%)",//
+  60000,
+  "hsl(0, 100%, 35%)",//dark red
+  80000,
+  "hsl(0, 100%, 25%)",//
+
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+
+
+map.addLayer({
+        'id': 'total deaths',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './geoData/coronavirus.geojson'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+      //  "filter": ["==", 0, 100],
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "TotalDeaths"],
+  0,
+  "hsl(0, 100%, 100%)", //white
+  25,
+  "hsl(0, 100%, 75%)", //pink
+  100,
+  "hsl(0, 100%, 70%)", //
+  500,
+  "hsl(0, 100%, 65%)", //
+  759,
+  "hsl(0, 100%, 60%)", //
+  1000,
+  "hsl(0, 100%, 55%)", //
+  2000,
+  "hsl(0, 15%, 50%)",//
+  2500,
+  "hsl(0, 100%, 45%)",
+  3000,
+  "hsl(0, 100%, 40%)",//
+  4000,
+  "hsl(0, 100%, 35%)",//dark red
+  5000,
+  "hsl(0, 100%, 25%)",//
+
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+
+
+map.addLayer({
+        'id': 'new deaths',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './geoData/coronavirus.geojson'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+      //  "filter": ["==", 0, 100],
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "NewDeaths"],
+  0,
+  "hsl(0, 100%, 100%)", //white
+  25,
+  "hsl(0, 100%, 75%)", //pink
+  100,
+  "hsl(0, 100%, 70%)", //
+  500,
+  "hsl(0, 100%, 65%)", //
+  759,
+  "hsl(0, 100%, 60%)", //
+  1000,
+  "hsl(0, 100%, 55%)", //
+  2000,
+  "hsl(0, 15%, 50%)",//
+  2500,
+  "hsl(0, 100%, 45%)",
+  3000,
+  "hsl(0, 100%, 40%)",//
+  4000,
+  "hsl(0, 100%, 35%)",//dark red
+  5000,
+  "hsl(0, 100%, 25%)",//
+
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+
+
+
+// Start PM
+
+
+
+map.addLayer({
+        'id': 'total cases per million',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './geoData/coronavirus.geojson'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+      //  "filter": ["==", 0, 100],
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "TotalCasesPM"],
+  0,
+  "hsl(0, 100%, 100%)", //white
+  25,
+  "hsl(0, 100%, 75%)", //pink
+  100,
+  "hsl(0, 100%, 70%)", //
+  250,
+  "hsl(0, 100%, 65%)", //
+  500,
+  "hsl(0, 100%, 60%)", //
+  1000,
+  "hsl(0, 100%, 55%)", //
+  2500,
+  "hsl(0, 15%, 50%)",//
+  5000,
+  "hsl(0, 100%, 45%)",
+  10000,
+  "hsl(0, 100%, 40%)",//
+  20000,
+  "hsl(0, 100%, 35%)",//dark red
+  40000,
+  "hsl(0, 100%, 25%)",//
+
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+var findData= "./geoData/coronavirus"
+map.addLayer({
+        'id': 'new cases per million',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './geoData/coronavirus.geojson'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+      //  "filter": ["==", 0, 100],
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "NewCasesPM"],
+  0,
+  "hsl(0, 100%, 100%)", //white
+  25,
+  "hsl(0, 100%, 90%)", //pink
+  100,
+  "hsl(0, 100%, 50%)", //red
+  1000,
+  "hsl(47, 100%, 50%)", //orange
+  100000,
+  "hsl(250, 100%, 80%)", //light purple
+  250000,
+  "hsl(250, 100%, 50%)", // blue
+  750000,
+  "hsl(182, 15%, 40%)",// green grey
+  2000000,
+  "hsl(250, 100%, 0%)",//black
+
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+
+
+map.addLayer({
+        'id': 'total deaths per million',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './geoData/coronavirus.geojson'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+      //  "filter": ["==", 0, 100],
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "TotalDeathsPM"],
+  0,
+  "hsl(0, 100%, 100%)", //white
+  25,
+  "hsl(0, 100%, 90%)", //pink
+  100,
+  "hsl(0, 100%, 50%)", //red
+  1000,
+  "hsl(47, 100%, 50%)", //orange
+  100000,
+  "hsl(250, 100%, 80%)", //light purple
+  250000,
+  "hsl(250, 100%, 50%)", // blue
+  750000,
+  "hsl(182, 15%, 40%)",// green grey
+  2000000,
+  "hsl(250, 100%, 0%)",//black
+
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+map.addLayer({
+        'id': 'new deaths per million',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './geoData/coronavirus.geojson'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+      //  "filter": ["==", 0, 100],
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "NewDeathsPM"],
+  0,
+  "hsl(0, 100%, 100%)", //white
+  25,
+  "hsl(0, 100%, 90%)", //pink
+  100,
+  "hsl(0, 100%, 50%)", //red
+  1000,
+  "hsl(47, 100%, 50%)", //orange
+  100000,
+  "hsl(250, 100%, 80%)", //light purple
+  250000,
+  "hsl(250, 100%, 50%)", // blue
+  750000,
+  "hsl(182, 15%, 40%)",// green grey
+  2000000,
+  "hsl(250, 100%, 0%)",//black
+
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+
+
+
+
+
+for (var i = 0; i<= 182; i++) {
+//  var match = slider.value + i;
+var year = parseInt(slider.value);
+  map.addLayer({
+          'id': 'total cases' + i,
+          'type': 'fill',
+          'source': 'coronavirus' + i,
+          'source-layer': 'coronavirus' + i,
+          'minzoom': 1,
+          'maxzoom': 4,
+          'layout': {
+              'visibility': 'none'
+          },
+          "filter": ['==', ['number', tracker[i]], year],
+          'paint': {
+          'fill-color': [
+    "interpolate",
+    ["linear"],
+    ["get", "TotalCases"],
+    0,
+    "hsl(0, 100%, 100%)", //white
+    25,
+    "hsl(0, 100%, 75%)", //pink
+    100,
+    "hsl(0, 100%, 70%)", //
+    1000,
+    "hsl(0, 100%, 65%)", //
+    10000,
+    "hsl(0, 100%, 60%)", //
+    100000,
+    "hsl(0, 100%, 55%)", //
+    250000,
+    "hsl(0, 15%, 50%)",//
+    500000,
+    "hsl(0, 100%, 45%)",
+    1000000,
+    "hsl(0, 100%, 40%)",//
+    2000000,
+    "hsl(0, 100%, 35%)",//dark red
+    4000000,
+    "hsl(0, 100%, 25%)",//
+  ],
+              'fill-opacity': 0.80
+          },
+      },firstSymbolId);
+
+
+      map.addLayer({
+              'id': 'new cases' + i,
+              'type': 'fill',
+              'source': 'coronavirus' + i,
+              'source-layer': 'coronavirus' + i,
+              'minzoom': 1,
+              'maxzoom': 4,
+              'layout': {
+                  'visibility': 'none'
+              },
+              "filter": ['==', ['number', tracker[i]], year],
+              'paint': {
+              'fill-color': [
+        "interpolate",
+        ["linear"],
+        ["get", "NewCases"],
+        0,
+        "hsl(0, 100%, 100%)", //white
+        500,
+        "hsl(0, 100%, 75%)", //pink
+        1000,
+        "hsl(0, 100%, 70%)", //
+        5000,
+        "hsl(0, 100%, 65%)", //
+        12000,
+        "hsl(0, 100%, 60%)", //
+        20000,
+        "hsl(0, 100%, 55%)", //
+        30000,
+        "hsl(0, 15%, 50%)",//
+        40000,
+        "hsl(0, 100%, 45%)",
+        50000,
+        "hsl(0, 100%, 40%)",//
+        60000,
+        "hsl(0, 100%, 35%)",//dark red
+        80000,
+        "hsl(0, 100%, 25%)",//
+      ],
+                  'fill-opacity': 0.80
+              },
+          },firstSymbolId);
+
+
+          map.addLayer({
+                  'id': 'total deaths' + i,
+                  'type': 'fill',
+                  'source': 'coronavirus' + i,
+                  'source-layer': 'coronavirus' + i,
+                  'minzoom': 1,
+                  'maxzoom': 4,
+                  'layout': {
+                      'visibility': 'none'
+                  },
+                  "filter": ['==', ['number', tracker[i]], year],
+                  'paint': {
+                  'fill-color': [
+            "interpolate",
+            ["linear"],
+            ["get", "TotalDeaths"],
+            0,
+            "hsl(0, 100%, 100%)", //white
+            25,
+            "hsl(0, 100%, 75%)", //pink
+            100,
+            "hsl(0, 100%, 70%)", //
+            1000,
+            "hsl(0, 100%, 65%)", //
+            5000,
+            "hsl(0, 100%, 60%)", //
+            10000,
+            "hsl(0, 100%, 55%)", //
+            25000,
+            "hsl(0, 15%, 50%)",//
+            50000,
+            "hsl(0, 100%, 45%)",
+            100000,
+            "hsl(0, 100%, 40%)",//
+            150000,
+            "hsl(0, 100%, 35%)",//dark red
+            200000,
+            "hsl(0, 100%, 25%)",//
+          ],
+                      'fill-opacity': 0.80
+                  },
+              },firstSymbolId);
+
+              map.addLayer({
+                      'id': 'new deaths' + i,
+                      'type': 'fill',
+                      'source': 'coronavirus' + i,
+                      'source-layer': 'coronavirus' + i,
+                      'minzoom': 1,
+                      'maxzoom': 4,
+                      'layout': {
+                          'visibility': 'none'
+                      },
+                      "filter": ['==', ['number', tracker[i]], year],
+                      'paint': {
+                      'fill-color': [
+                "interpolate",
+                ["linear"],
+                ["get", "NewDeaths"],
+                0,
+                "hsl(0, 100%, 100%)", //white
+                25,
+                "hsl(0, 100%, 75%)", //pink
+                100,
+                "hsl(0, 100%, 70%)", //
+                500,
+                "hsl(0, 100%, 65%)", //
+                759,
+                "hsl(0, 100%, 60%)", //
+                1000,
+                "hsl(0, 100%, 55%)", //
+                2000,
+                "hsl(0, 15%, 50%)",//
+                2500,
+                "hsl(0, 100%, 45%)",
+                3000,
+                "hsl(0, 100%, 40%)",//
+                4000,
+                "hsl(0, 100%, 35%)",//dark red
+                5000,
+                "hsl(0, 100%, 25%)",//
+              ],
+                          'fill-opacity': 0.80
+                      },
+                  },firstSymbolId);
+
+                  map.addLayer({
+                          'id': 'total cases PM' + i,
+                          'type': 'fill',
+                          'source': 'coronavirus' + i,
+                          'source-layer': 'coronavirus' + i,
+                          'minzoom': 1,
+                          'maxzoom': 3,
+                          'layout': {
+                              'visibility': 'none'
+                          },
+                          "filter": ['==', ['number', tracker[i]], year],
+                          'paint': {
+                          'fill-color': [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "TotalCasesPM"],
+                    0,
+                    "hsl(0, 100%, 100%)", //white
+                    25,
+                    "hsl(0, 100%, 75%)", //pink
+                    100,
+                    "hsl(0, 100%, 70%)", //
+                    250,
+                    "hsl(0, 100%, 65%)", //
+                    500,
+                    "hsl(0, 100%, 60%)", //
+                    1000,
+                    "hsl(0, 100%, 55%)", //
+                    2500,
+                    "hsl(0, 15%, 50%)",//
+                    5000,
+                    "hsl(0, 100%, 45%)",
+                    10000,
+                    "hsl(0, 100%, 40%)",//
+                    20000,
+                    "hsl(0, 100%, 35%)",//dark red
+                    40000,
+                    "hsl(0, 100%, 25%)",//
+                  ],
+                              'fill-opacity': 0.80
+                          },
+                      },firstSymbolId);
+
+                      map.addLayer({
+                              'id': 'new cases PM' + i,
+                              'type': 'fill',
+                              'source': 'coronavirus' + i,
+                              'source-layer': 'coronavirus' + i,
+                              'minzoom': 1,
+                              'maxzoom': 4,
+                              'layout': {
+                                  'visibility': 'none'
+                              },
+                              //"filter": ["==", i, slider.value],
+                              'paint': {
+                              'fill-color': [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "NewCasesPM"],
+                        0,
+                        "hsl(0, 100%, 100%)", //white
+                        5,
+                        "hsl(0, 100%, 75%)", //pink
+                        10,
+                        "hsl(0, 100%, 70%)", //
+                        50,
+                        "hsl(0, 100%, 65%)", //
+                        100,
+                        "hsl(0, 100%, 60%)", //
+                        150,
+                        "hsl(0, 100%, 55%)", //
+                        200,
+                        "hsl(0, 15%, 50%)",//
+                        250,
+                        "hsl(0, 100%, 45%)",
+                        500,
+                        "hsl(0, 100%, 40%)",//
+                        750,
+                        "hsl(0, 100%, 35%)",//dark red
+                        1000,
+                        "hsl(0, 100%, 25%)",//
+                      ],
+                                  'fill-opacity': 0.80
+                              },
+                          },firstSymbolId);
+
+
+                          map.addLayer({
+                                  'id': 'total deaths PM' + i,
+                                  'type': 'fill',
+                                  'source': 'coronavirus' + i,
+                                  'source-layer': 'coronavirus' + i,
+                                  'minzoom': 1,
+                                  'maxzoom': 4,
+                                  'layout': {
+                                      'visibility': 'none'
+                                  },
+                                  "filter": ['==', ['number', tracker[i]], year],
+                                  'paint': {
+                                  'fill-color': [
+                            "interpolate",
+                            ["linear"],
+                            ["get", "TotalDeathsPM"],
+                            0,
+                            "hsl(0, 100%, 100%)", //white
+                            25,
+                            "hsl(0, 100%, 75%)", //pink
+                            50,
+                            "hsl(0, 100%, 70%)", //
+                            100,
+                            "hsl(0, 100%, 65%)", //
+                            150,
+                            "hsl(0, 100%, 60%)", //
+                            250,
+                            "hsl(0, 100%, 55%)", //
+                            500,
+                            "hsl(0, 15%, 50%)",//
+                            750,
+                            "hsl(0, 100%, 45%)",
+                            1000,
+                            "hsl(0, 100%, 40%)",//
+                            1500,
+                            "hsl(0, 100%, 35%)",//dark red
+                            2000,
+                            "hsl(0, 100%, 25%)",//
+                          ],
+                                      'fill-opacity': 0.80
+                                  },
+                              },firstSymbolId);
+
+
+
+                              map.addLayer({
+                                      'id': 'new deaths PM' + i,
+                                      'type': 'fill',
+                                      'source': 'coronavirus' + i,
+                                      'source-layer': 'coronavirus' + i,
+                                      'minzoom': 1,
+                                      'maxzoom': 4,
+                                      'layout': {
+                                          'visibility': 'none'
+                                      },
+                                      "filter": ['==', ['number', tracker[i]], year],
+                                      'paint': {
+                                      'fill-color': [
+                                "interpolate",
+                                ["linear"],
+                                ["get", "NewDeathsPM"],
+                                0,
+                                "hsl(0, 100%, 100%)", //white
+                                1,
+                                "hsl(0, 100%, 75%)", //pink
+                                2,
+                                "hsl(0, 100%, 70%)", //
+                                3,
+                                "hsl(0, 100%, 65%)", //
+                                4,
+                                "hsl(0, 100%, 60%)", //
+                                5,
+                                "hsl(0, 100%, 55%)", //
+                                6,
+                                "hsl(0, 15%, 50%)",//
+                                7,
+                                "hsl(0, 100%, 45%)",
+                                8,
+                                "hsl(0, 100%, 40%)",//
+                                9,
+                                "hsl(0, 100%, 35%)",//dark red
+                                10,
+                                "hsl(0, 100%, 25%)",//
+                              ],
+                                          'fill-opacity': 0.80
+                                      },
+                                  },firstSymbolId);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// End CODE HERE
+/*
+for (var j = 0; j<= 182; j++) {
+  var year = parseInt(slider.value);
+  var layerName = "total cases" + j;
+  map.getFilter(layerName);
+  map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+  //CODE HERE
+}
+
+for (var j = 0; j<= 182; j++) {
+  var year = parseInt(slider.value);
+  var layerName = "new cases" + j;
+  map.getFilter(layerName);
+  map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+  //CODE HERE
+}
+for (var j = 0; j<= 182; j++) {
+  var year = parseInt(slider.value);
+  var layerName = "total deaths" + j;
+  map.getFilter(layerName);
+  map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+  //CODE HERE
+}
+
+for (var j = 0; j<= 182; j++) {
+  var year = parseInt(slider.value);
+  var layerName = "new deaths" + j;
+  map.getFilter(layerName);
+  map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+  //CODE HERE
+}
+
+for (var j = 0; j<= 182; j++) {
+  var year = parseInt(slider.value);
+  var layerName = "total cases PM" + j;
+  map.getFilter(layerName);
+  map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+  //CODE HERE
+}
+
+for (var j = 0; j<= 182; j++) {
+  var year = parseInt(slider.value);
+  var layerName = "new cases PM" + j;
+  map.getFilter(layerName);
+  map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+  //CODE HERE
+}
+for (var j = 0; j<= 182; j++) {
+  var year = parseInt(slider.value);
+  var layerName = "total deaths PM" + j;
+  map.getFilter(layerName);
+  map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+  //CODE HERE
+}
+
+for (var j = 0; j<= 182; j++) {
+  var year = parseInt(slider.value);
+  var layerName = "new deaths PM" + j;
+  map.getFilter(layerName);
+  map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+  //CODE HERE
+}
+*/
+
+
+
+});
+
+
+
+
+//Click To get link to documents
+map.on('click', function(e) {
+var states = map.queryRenderedFeatures(e.point, {
+    layers: ['links']
+  });
+
+
+  if (states.length > 0) {
+    document.getElementById('pe').innerHTML = '<h3><strong>' + states[0].properties.name + '</strong></h3><p><strong><em>' + states[0].properties.year + '</strong>  <a href="'+ states[0].properties.info + '" > Link to Doc</a></em></p>';
+  } else {
+    document.getElementById('pe').innerHTML = '<p></p>';
+  }
+})
+/*map.on('click', function(e) {
+  for (var j = 0; j < artworks.features.length; j++) {
+  var layerName = "Artworks"+j
+  var states = map.queryRenderedFeatures(e.point, {
+      layers: [layerName]
+    });
+    if (states.length > 0) {
+      document.getElementById('pe').innerHTML = '<h3><strong>' + states[0].properties.name + '</strong></h3><p><strong><em>' + states[0].properties.year + '</strong>  <a href="'+ states[0].properties.info + '" > Link to Doc</a></em></p>';
+    } else {
+      document.getElementById('pe').innerHTML = '<p></p>';
+    }
+  }
+
+});*/
+
+
+
+
+/*
+    var id = 'Countries';
+
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = id;
+    link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+            this.className = '';
+        } else {
+            this.className = 'active';
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+
+*/
+
+  var toggleableLayerIds = [
+      "total cases",
+      "new cases",
+      "total deaths",
+      "new deaths",
+      "total cases per million",
+      "new cases per million",
+      "total deaths per million",
+      "new deaths per million"
+  ];
+
+  //Don't put any space in layer name, used to properly make HTML code
+      var toggleableLayerIdsNoSpace = [
+      "totalcases",
+      "newcases",
+      "totaldeaths",
+      "newdeaths",
+      "totalcasespermillion",
+      "newcasespermillion",
+      "totaldeathspermillion",
+      "newdeathspermillion"
+      ];
+
+      //which type of layer is it, don't put spaces
+      var contLayers = ["totalcases",
+      "newcases",
+      "totaldeaths",
+      "newdeaths",
+      "totalcasespermillion",
+      "newcasespermillion",
+      "totaldeathspermillion",
+      "newdeathspermillion" ];
+      var discreteLayers = [];
+      var subDropdown = [];
+
+    for (var i = 0; i < toggleableLayerIds.length; i++) {
+        var id = toggleableLayerIds[i];
+        var noSpaceId = toggleableLayerIdsNoSpace[i];
+        var menu = document.getElementById("menu");
+
+        //adds HTML for each layer
+        var link = document.createElement("a");
+        link.href = "#";
+        link.className = "";
+        link.textContent = id;
+        link.setAttribute("id", toggleableLayerIdsNoSpace[i]);
+        menu.appendChild(link);
+
+        var layerDropdown = document.createElement("div");
+        layerDropdown.className = "dropdown" + toggleableLayerIdsNoSpace[i];
+        layerDropdown.id = "dropdown" + toggleableLayerIdsNoSpace[i];
+        menu.appendChild(layerDropdown);
+
+        //will add relevant map options for continuous data layers
+        for (var k = 0; k < contLayers.length; k++) {
+          if (noSpaceId == contLayers[k]) {
+            var mapLayerChoices = ["Choropleth Map", "Bubble Map", "Heat Map"];
+            var contLayerID = ["choropleth", "bubble", "heat"];
+            for (var j = 0; j < mapLayerChoices.length; j++) {
+              var linkChoice = document.createElement("a");
+              linkChoice.href = "#";
+              linkChoice.id = contLayerID[j] + noSpaceId;
+              linkChoice.textContent = mapLayerChoices[j];
+              layerDropdown.appendChild(linkChoice);
+              subDropdown[subDropdown.length] = linkChoice;
+            }
+            //add class type to it
+            var elementToAddClass = document.getElementById(layerDropdown.id);
+            elementToAddClass.classList.add("dropdown");
+          }
+        }
+
+        for (var l = 0; l < discreteLayers.length; l++) {
+          if (noSpaceId == discreteLayers[l]) {
+            console.log("Entered if");
+            var mapDiscreteChoice = ["Choropleth Map", "Extruded Map"];
+            var discreteMapID = ["choropleth", "extruded"];
+            for (var h = 0; h < mapDiscreteChoice.length; h++) {
+              console.log("Entered the for");
+              var linkChoice = document.createElement("a");
+              linkChoice.href = "#";
+              linkChoice.id = discreteMapID[h] + noSpaceId;
+              linkChoice.textContent = mapDiscreteChoice[h];
+              layerDropdown.appendChild(linkChoice);
+              subDropdown[subDropdown.length] = linkChoice;
+            }
+            //add class type to it
+            var elementToAddClass = document.getElementById(layerDropdown.id);
+            elementToAddClass.classList.add("dropdown");
+          }
+        }
+
+    link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+
+// CODE HERE
+
+                if (clickedLayer == 'total cases') {
+                for (var j = 0; j<= 182; j++) {
+                var layerName = "total cases"+j;
+                map.setLayoutProperty(layerName, 'visibility', 'none');
+              }
+            }
+
+              if (clickedLayer == 'new cases') {
+              for (var j = 0; j<= 182; j++) {
+              var layerName = "new cases"+j;
+              map.setLayoutProperty(layerName, 'visibility', 'none');
+              }
+            }
+
+            if (clickedLayer == 'total deaths') {
+            for (var j = 0; j<= 182; j++) {
+            var layerName = "total deaths"+j;
+            map.setLayoutProperty(layerName, 'visibility', 'none');
+            }
+          }
+
+            if (clickedLayer == 'new deaths') {
+            for (var j = 0; j<= 182; j++) {
+            var layerName = "new deaths"+j;
+            map.setLayoutProperty(layerName, 'visibility', 'none');
+            }
+          }
+
+          if (clickedLayer == 'total cases per million') {
+          for (var j = 0; j<= 182; j++) {
+          var layerName = "total cases PM"+j;
+          map.setLayoutProperty(layerName, 'visibility', 'none');
+        }
+      }
+
+        if (clickedLayer == 'new cases per million') {
+        for (var j = 0; j<= 182; j++) {
+        var layerName = "new cases PM"+j;
+        map.setLayoutProperty(layerName, 'visibility', 'none');
+        }
+      }
+
+      if (clickedLayer == 'total deaths per million') {
+      for (var j = 0; j<= 182; j++) {
+      var layerName = "total deaths PM"+j;
+      map.setLayoutProperty(layerName, 'visibility', 'none');
+      }
+    }
+
+      if (clickedLayer == 'new deaths per million') {
+      for (var j = 0; j<= 182; j++) {
+      var layerName = "new deaths PM"+j;
+      map.setLayoutProperty(layerName, 'visibility', 'none');
+      }
+    }
+
+
+
+  // Stop CODE HERE
+
+            this.className = '';
+          } else {
+            this.className = 'active';
+
+// CODE HERE
+
+        if (clickedLayer == 'total cases') {
+              for (var j = 0; j<= 182; j++) {
+              var layerName = "total cases"+j
+              map.setLayoutProperty(layerName, 'visibility', 'visible');
+            }
+        }
+
+                  if (clickedLayer == 'new cases') {
+                  for (var j = 0; j<= 182; j++) {
+                  var layerName = "new cases"+j;
+                  map.setLayoutProperty(layerName, 'visibility', 'visible');
+                  }
+                }
+
+                if (clickedLayer == 'total deaths') {
+                for (var j = 0; j<= 182; j++) {
+                var layerName = "total deaths"+j;
+                map.setLayoutProperty(layerName, 'visibility', 'visible');
+                }
+              }
+
+                if (clickedLayer == 'new deaths') {
+                for (var j = 0; j<= 182; j++) {
+                var layerName = "new deaths"+j;
+                map.setLayoutProperty(layerName, 'visibility', 'visible');
+                }
+              }
+
+              if (clickedLayer == 'total cases per million') {
+              for (var j = 0; j<= 182; j++) {
+              var layerName = "total cases PM"+j;
+              map.setLayoutProperty(layerName, 'visibility', 'visible');
+            }
+          }
+
+            if (clickedLayer == 'new cases per million') {
+            for (var j = 0; j<= 182; j++) {
+            var layerName = "new cases PM"+j;
+            map.setLayoutProperty(layerName, 'visibility', 'visible');
+            }
+          }
+
+          if (clickedLayer == 'total deaths per million') {
+          for (var j = 0; j<= 182; j++) {
+          var layerName = "total deaths PM"+j;
+          map.setLayoutProperty(layerName, 'visibility', 'visible');
+          }
+        }
+
+          if (clickedLayer == 'new deaths per million') {
+          for (var j = 0; j<= 182; j++) {
+          var layerName = "new deaths PM"+j;
+          map.setLayoutProperty(layerName, 'visibility', 'visible');
+          }
+        }
+
+// STOP CODE HERE
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+}
+
+//will be used for legend and dropdown menus
+var allLinks = document.querySelectorAll("#menu a");
+ //Functionality for dropdown menu; when and when not to display links for layers
+ var menu = document.querySelectorAll("#menu a");
+      var dropdown;
+      var dropdownContent;
+      var mouseoverID;
+      for (var i = 1; i < menu.length; i++) {
+        //adds listener event for all link in menu
+        menu[i].addEventListener("mouseover", function (e) {
+          mouseoverID = e.target.id.toString();
+          //console.log("This is mouseoverId: " + mouseoverID);
+          //start of by clearing all sub dropdown menus
+          for (var j = 0; j < toggleableLayerIds.length; j++) {
+            if (mouseoverID === toggleableLayerIdsNoSpace[j]) {
+              for (var l = 0; l < toggleableLayerIds.length; l++) {
+                var noDropdown = document.getElementsByClassName(
+                  "dropdown" + toggleableLayerIdsNoSpace[l]
+                );
+                noDropdown[0].style.display = "none";
+              }
+            }
+          }
+
+          //display the dropdown menu mouse is hovering over
+          for (var j = 0; j < toggleableLayerIds.length; j++) {
+            if (mouseoverID === toggleableLayerIdsNoSpace[j]) {
+              dropdownContent = document.getElementsByClassName(
+                "dropdown" + mouseoverID
+              );
+              dropdownContent[0].style.display = "block";
+            }
+          }
+
+          //only adjust top of the sub dropdown menu when user hovers over toggable layers
+          for (var j = 0; j < toggleableLayerIds.length; j++) {
+            if (mouseoverID === toggleableLayerIdsNoSpace[j]) {
+              var rect = document
+                .getElementById(mouseoverID)
+                .getBoundingClientRect();
+              var top = rect.top;
+              //need to subtract 12 as it takes into consideration gap between top of box and word of link
+              top = top - 12;
+              dropdownContent[0].style.top = top + "px";
+            }
+          }
+        });
+      }
+
+      var menuOverall = document.getElementById("menu");
+      menuOverall.addEventListener("mouseleave", function (e) {
+        for (var i = 0; i < toggleableLayerIds.length; i++) {
+          var noDropdown = document.getElementsByClassName(
+            "dropdown" + toggleableLayerIdsNoSpace[i]
+          );
+          noDropdown[0].style.display = "none";
+        }
+      });
+
+//used to display the correct legend based on the layer the user clicks
+for(var i = 0; i < allLinks.length; i++){
+      allLinks[i].addEventListener("click", function (e) {
+
+        //delete every childnode under class = legend-overlay / id = mapLegend
+        var removeChildnodes = document.getElementById("mapLegend");
+        removeChildnodes.textContent = "";
+
+        //un-display the legend
+        var CSSlayer = document.getElementsByClassName("legend-overlay");
+        CSSlayer[0].style.display = "none";
+
+        //will display the legend if any links are clicked and have the class "active"
+        for(var j = 0; j < allLinks.length; j++){
+          console.log("Entered");
+          if(allLinks[j].className == "active"){
+           CSSlayer[0].style.display = "block";
+          }
+        }
+
+        console.log("This was clicked " + e.target.id);
+
+        var colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'];
+        var layers = [];
+
+       //creating the legend; will add back the html code; need to fix formatting
+       switch(e.target.id){
+        case "totalcases":
+          layers = ['0-10', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '1+'];
+          break;
+
+        case "newcases":
+          layers = ['0-10', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '10+'];
+          break;
+
+        case "totaldeaths":
+          layers = ['0-10000', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '100+'];
+          break;
+
+        case "newdeaths":
+          layers = ['0-10000', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '1000+'];
+          break;
+
+        case "totalcasespermillion":
+          layers = ['0-10000', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '10000+'];
+          break;
+
+        case "newcasespermillion":
+          layers = ['0-10000', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '100000+'];
+          break;
+
+        case "totaldeathspermillion":
+          layers = ['0-10000', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '1000000+'];
+          break;
+
+        case "newdeathspermillion":
+          layers = ['0-10000', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '100000000+'];
+          break;
+
+        default:
+          break;
+
+       }
+
+        //creates the HTML for the legend
+        for (k = 0; k < layers.length; k++) {
+          var layer = layers[k];
+          var color = colors[k];
+          var item = document.createElement('div');
+          var key = document.createElement('span');
+          key.className = 'legend-key';
+          key.style.backgroundColor = color;
+
+          var value = document.createElement('span');
+          value.innerHTML = layer;
+          item.appendChild(key);
+          item.appendChild(value);
+          mapLegend.appendChild(item);
+        }
+      });
+    }
+
+    //used when user is moving slider to automatically update
+    /* var sliderMove = document.getElementById("slider");
+    var clickedCheck;
+    var box;
+    var yearNum;
+    var buttons = document.getElementById("listing-group");
+
+      sliderMove.addEventListener("mousedown", function (e) {
+        clickedCheck = isAnyBoxChecked();
+        if (clickedCheck === true) {
+          box = moveSliderWhenButtonIsClicked(e);
+        }
+      });
+
+      sliderMove.addEventListener("mouseup", function () {
+        yearNum = sliderMove.value;
+        if (clickedCheck === true) {
+          box.checked = true;
+          oneCheckbox(box);
+          let changeup = new Event("change");
+          buttons.dispatchEvent(changeup);
+        }
+      });
+
+      var year = yearNum; */
+
+ /* Once there is a change in the checkbox value for any button, do the following code*/
+document.getElementById('listing-group').addEventListener('change', function(e) {
+    var handler = e.target.id;
+    var consoleButtons = document.getElementsByName("box");
+    var checked = false;
+    var clickedBox;
+
+    for (var i = 0; i < consoleButtons.length; i++) {
+          if (consoleButtons[i].checked === true) {
+            clickedBox = consoleButtons[i];
+            checked = true;
+            oneCheckbox(clickedBox);
+          }
+    }
+
+    if (e.target.checked || checked) {
+      var slider = document.getElementById('slider');
+      var year = parseInt(e.target.value);
+      var variable = document.getElementById('year');
+      var play = document.getElementById("Play");
+      var increment;
+
+      if (play.checked === true) {
+            /* increment = numberIncrement.value; */
+            console.log("play pushed");
+            increment = "1";
+            /* if (increment === "") {
+              holderOfIncrement.value = "1";
+              holderOfIncrement.placeholder = "1";
+              increment = "1";
+            } */
+      }
+
+
+      var counter = slider.value;
+      var myInterval = setInterval(function () {
+        var year = slider.value;
+        year = parseInt(year);
+        increment = parseInt(increment);
+        console.log("This is the year: " + year);
+        console.log("This is the increment: " + increment);
+            counter = parseInt(counter);
+            counter = counter + increment;
+            slider.value = counter;
+
+            if (counter < slider.max) {
+              year = year + increment;
+            } else {
+              year = 2019;
+            }
+
+            if (counter < slider.min) {
+              year = slider.min;
+            }
+
+            if (counter > slider.max) {
+              year = slider.max;
+            }
+
+ document.getElementById('active-hour').innerText = year -1; //1st
+/*
+ for (var j = 0; j<= 182; j++) {
+   var layerName = "total cases" + j;
+   map.setFilter(layerName, null);
+
+ } */
+
+// CODE HERE
+
+ for (var j = 0; j<= 182; j++) {
+   var layerName = "total cases" + j;
+   map.getFilter(layerName);
+   map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+   var layerName2 = "new cases" + j;
+   map.getFilter(layerName2);
+   map.setFilter(layerName2, ['==', ['number', tracker[j]], year]);
+   var layerName3 = "total deaths" + j;
+   map.getFilter(layerName3);
+   map.setFilter(layerName3, ['==', ['number', tracker[j]], year])
+   var layerName4 = "new deaths" + j;
+   map.getFilter(layerName4);
+   map.setFilter(layerName4, ['==', ['number', tracker[j]], year]);
+   var layerName5 = "total cases PM" + j;
+   map.getFilter(layerName5);
+   map.setFilter(layerName5, ['==', ['number', tracker[j]], year]);
+   var layerName6 = "new cases PM" + j;
+   map.getFilter(layerName6);
+   map.setFilter(layerName6, ['==', ['number', tracker[j]], year]);
+   var layerName7 = "total deaths PM" + j;
+   map.getFilter(layerName7);
+   map.setFilter(layerName7, ['==', ['number', tracker[j]], year]);
+   var layerName8 = "new deaths PM" + j;
+   map.getFilter(layerName8);
+   map.setFilter(layerName8, ['==', ['number', tracker[j]], year]);
+ }
+
+ /*for (var j = 0; j<= 182; j++) {
+   var layerName = "new cases" + j;
+   map.getFilter(layerName);
+   map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+ }
+
+ for (var j = 0; j<= 182; j++) {
+   var layerName = "total deaths" + j;
+   map.getFilter(layerName);
+   map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+ }
+
+ for (var j = 0; j<= 182; j++) {
+   var layerName = "new deaths" + j;
+   map.getFilter(layerName);
+   map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+ }
+
+ for (var j = 0; j<= 182; j++) {
+   var layerName = "total cases PM" + j;
+   map.getFilter(layerName);
+   map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+ }
+
+ for (var j = 0; j<= 182; j++) {
+   var layerName = "new cases PM" + j;
+   map.getFilter(layerName);
+   map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+ }
+
+ for (var j = 0; j<= 182; j++) {
+   var layerName = "total deaths PM" + j;
+   map.getFilter(layerName);
+   map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+ }
+
+ for (var j = 0; j<= 182; j++) {
+   var layerName = "new deaths PM" + j;
+   map.getFilter(layerName);
+   map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+ }
+ */
+
+
+// STOP CODE HERE
+
+    if (slider.value == slider.max) {
+      e.target.checked = false;
+      checked = false;
+    }
+
+    if (slider.value === slider.min) {
+      e.target.checked = false;
+      checked = false;
+    }
+
+    if (checked === true && clickedBox.checked === false) {
+      checked = false;
+    }
+
+if(e.target.checked || checked){}
+else{clearInterval(myInterval);
+ }
+}, 350);
+
+
+} else { //2nd
+
+
+// CODE HERE
+for (var j = 0; j<= 182; j++) {
+  var layerName = "total cases" + j;
+  map.getFilter(layerName);
+  map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+  var layerName2 = "new cases" + j;
+  map.getFilter(layerName2);
+  map.setFilter(layerName2, ['==', ['number', tracker[j]], year]);
+  var layerName3 = "total deaths" + j;
+  map.getFilter(layerName3);
+  map.setFilter(layerName3, ['==', ['number', tracker[j]], year])
+  var layerName4 = "new deaths" + j;
+  map.getFilter(layerName4);
+  map.setFilter(layerName4, ['==', ['number', tracker[j]], year]);
+  var layerName5 = "total cases PM" + j;
+  map.getFilter(layerName5);
+  map.setFilter(layerName5, ['==', ['number', tracker[j]], year]);
+  var layerName6 = "new cases PM" + j;
+  map.getFilter(layerName6);
+  map.setFilter(layerName6, ['==', ['number', tracker[j]], year]);
+  var layerName7 = "total deaths PM" + j;
+  map.getFilter(layerName7);
+  map.setFilter(layerName7, ['==', ['number', tracker[j]], year]);
+  var layerName8 = "new deaths PM" + j;
+  map.getFilter(layerName8);
+  map.setFilter(layerName8, ['==', ['number', tracker[j]], year]);
+}
+/*
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "total cases" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', j, year]);
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "new cases" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "total deaths" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "new deaths" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "total cases PM" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "new cases PM" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "total deaths PM" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "new deaths PM" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }*/
+
+
+
+// STOP CODE HERE
+
+}
+});
+
+
+
+
+
+document.getElementById('slider').addEventListener('input', function(e) { //event listener for slider change
+  var year = parseInt(e.target.value);
+/*  for (var j = 0; j<= 182; j++) {
+    var layerName = "total cases" + j;
+    map.setFilter(layerName, null);
+  } JUST CHNGED 5:02 7/20 */
+
+
+  // update the map
+
+
+  // CODE HERE
+
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "total cases" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+    var layerName2 = "new cases" + j;
+    map.getFilter(layerName2);
+    map.setFilter(layerName2, ['==', ['number', tracker[j]], year]);
+    var layerName3 = "total deaths" + j;
+    map.getFilter(layerName3);
+    map.setFilter(layerName3, ['==', ['number', tracker[j]], year])
+    var layerName4 = "new deaths" + j;
+    map.getFilter(layerName4);
+    map.setFilter(layerName4, ['==', ['number', tracker[j]], year]);
+    var layerName5 = "total cases PM" + j;
+    map.getFilter(layerName5);
+    map.setFilter(layerName5, ['==', ['number', tracker[j]], year]);
+    var layerName6 = "new cases PM" + j;
+    map.getFilter(layerName6);
+    map.setFilter(layerName6, ['==', ['number', tracker[j]], year]);
+    var layerName7 = "total deaths PM" + j;
+    map.getFilter(layerName7);
+    map.setFilter(layerName7, ['==', ['number', tracker[j]], year]);
+    var layerName8 = "new deaths PM" + j;
+    map.getFilter(layerName8);
+    map.setFilter(layerName8, ['==', ['number', tracker[j]], year]);
+  }
+
+  /*
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "total cases" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+    //console.log(layerName);
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "new cases" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "total deaths" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "new deaths" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "total cases PM" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "new cases PM" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "total deaths PM" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+
+  for (var j = 0; j<= 182; j++) {
+    var layerName = "new deaths PM" + j;
+    map.getFilter(layerName);
+    map.setFilter(layerName, ['==', ['number', tracker[j]], year]);
+
+  }
+*/
+
+
+
+//STOP CODE HERE
+
+  // update text in the UI
+  document.getElementById('active-hour').innerText = year -1;
+});
+
+
+var layerList = document.getElementById('mapMenu');
+var inputs = layerList.getElementsByTagName('input');
+
+
+
+function switchLayer(layer) {
+    var layerId = layer.target.id;
+    map.setStyle('mapbox://styles/mapbox/' + layerId + '-v9');
+
+map.on('style.load', function() {
+
+var layers = map.getStyle().layers;
+    // Find the index of the first symbol layer in the map style
+    var firstSymbolId;
+    for (var i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+            firstSymbolId = layers[i].id;
+            break;
+        }
+    }
+
+    for (var i = 0; i <= VTarr.length; i++) {
+      map.addSource('coronavirus' + i, {
+              'type': 'vector',
+              'url': 'mapbox://' + VTarr[i]
+          });
+    }
+
+    map.addLayer({
+            'id': 'total cases',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': './geoData/coronavirus.geojson'
+            },
+            'layout': {
+                'visibility': 'none'
+            },
+          //  "filter": ["==", 0, 100],
+            'paint': {
+            'fill-color': [
+      "interpolate",
+      ["linear"],
+      ["get", "TotalCases"],
+      0,
+      "hsl(0, 100%, 100%)", //white
+      25,
+      "hsl(0, 100%, 90%)", //pink
+      100,
+      "hsl(0, 100%, 50%)", //red
+      1000,
+      "hsl(47, 100%, 50%)", //orange
+      100000,
+      "hsl(250, 100%, 80%)", //light purple
+      250000,
+      "hsl(250, 100%, 50%)", // blue
+      750000,
+      "hsl(250, 15%, 40%)",// green grey
+      2000000,
+      "hsl(250, 100%, 0%)",//black
+
+    ],
+                'fill-opacity': 0.80
+            },
+        },firstSymbolId);
+
+
+
+
+
+
+
+    var findData= "./geoData/coronavirus"
+    map.addLayer({
+            'id': 'new cases',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': './geoData/coronavirus.geojson'
+            },
+            'layout': {
+                'visibility': 'none'
+            },
+          //  "filter": ["==", 0, 100],
+            'paint': {
+            'fill-color': [
+      "interpolate",
+      ["linear"],
+      ["get", "NewCases"],
+      0,
+      "hsl(0, 100%, 100%)", //white
+      500,
+      "hsl(0, 100%, 75%)", //pink
+      1000,
+      "hsl(0, 100%, 70%)", //
+      5000,
+      "hsl(0, 100%, 65%)", //
+      12000,
+      "hsl(0, 100%, 60%)", //
+      20000,
+      "hsl(0, 100%, 55%)", //
+      30000,
+      "hsl(0, 15%, 50%)",//
+      40000,
+      "hsl(0, 100%, 45%)",
+      50000,
+      "hsl(0, 100%, 40%)",//
+      60000,
+      "hsl(0, 100%, 35%)",//dark red
+      80000,
+      "hsl(0, 100%, 25%)",//
+
+    ],
+                'fill-opacity': 0.80
+            },
+        },firstSymbolId);
+
+
+
+
+
+    map.addLayer({
+            'id': 'total deaths',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': './geoData/coronavirus.geojson'
+            },
+            'layout': {
+                'visibility': 'none'
+            },
+          //  "filter": ["==", 0, 100],
+            'paint': {
+            'fill-color': [
+      "interpolate",
+      ["linear"],
+      ["get", "TotalDeaths"],
+      0,
+      "hsl(0, 100%, 100%)", //white
+      25,
+      "hsl(0, 100%, 75%)", //pink
+      100,
+      "hsl(0, 100%, 70%)", //
+      500,
+      "hsl(0, 100%, 65%)", //
+      759,
+      "hsl(0, 100%, 60%)", //
+      1000,
+      "hsl(0, 100%, 55%)", //
+      2000,
+      "hsl(0, 15%, 50%)",//
+      2500,
+      "hsl(0, 100%, 45%)",
+      3000,
+      "hsl(0, 100%, 40%)",//
+      4000,
+      "hsl(0, 100%, 35%)",//dark red
+      5000,
+      "hsl(0, 100%, 25%)",//
+
+    ],
+                'fill-opacity': 0.80
+            },
+        },firstSymbolId);
+
+
+
+
+
+    map.addLayer({
+            'id': 'new deaths',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': './geoData/coronavirus.geojson'
+            },
+            'layout': {
+                'visibility': 'none'
+            },
+          //  "filter": ["==", 0, 100],
+            'paint': {
+            'fill-color': [
+      "interpolate",
+      ["linear"],
+      ["get", "NewDeaths"],
+      0,
+      "hsl(0, 100%, 100%)", //white
+      25,
+      "hsl(0, 100%, 75%)", //pink
+      100,
+      "hsl(0, 100%, 70%)", //
+      500,
+      "hsl(0, 100%, 65%)", //
+      759,
+      "hsl(0, 100%, 60%)", //
+      1000,
+      "hsl(0, 100%, 55%)", //
+      2000,
+      "hsl(0, 15%, 50%)",//
+      2500,
+      "hsl(0, 100%, 45%)",
+      3000,
+      "hsl(0, 100%, 40%)",//
+      4000,
+      "hsl(0, 100%, 35%)",//dark red
+      5000,
+      "hsl(0, 100%, 25%)",//
+
+    ],
+                'fill-opacity': 0.80
+            },
+        },firstSymbolId);
+
+
+
+
+
+
+    // Start PM
+
+
+
+    map.addLayer({
+            'id': 'total cases per million',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': './geoData/coronavirus.geojson'
+            },
+            'layout': {
+                'visibility': 'none'
+            },
+          //  "filter": ["==", 0, 100],
+            'paint': {
+            'fill-color': [
+      "interpolate",
+      ["linear"],
+      ["get", "TotalCasesPM"],
+      0,
+      "hsl(0, 100%, 100%)", //white
+      25,
+      "hsl(0, 100%, 75%)", //pink
+      100,
+      "hsl(0, 100%, 70%)", //
+      250,
+      "hsl(0, 100%, 65%)", //
+      500,
+      "hsl(0, 100%, 60%)", //
+      1000,
+      "hsl(0, 100%, 55%)", //
+      2500,
+      "hsl(0, 15%, 50%)",//
+      5000,
+      "hsl(0, 100%, 45%)",
+      10000,
+      "hsl(0, 100%, 40%)",//
+      20000,
+      "hsl(0, 100%, 35%)",//dark red
+      40000,
+      "hsl(0, 100%, 25%)",//
+
+    ],
+                'fill-opacity': 0.80
+            },
+        },firstSymbolId);
+
+
+
+    var findData= "./geoData/coronavirus"
+    map.addLayer({
+            'id': 'new cases per million',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': './geoData/coronavirus.geojson'
+            },
+            'layout': {
+                'visibility': 'none'
+            },
+          //  "filter": ["==", 0, 100],
+            'paint': {
+            'fill-color': [
+      "interpolate",
+      ["linear"],
+      ["get", "NewCasesPM"],
+      0,
+      "hsl(0, 100%, 100%)", //white
+      25,
+      "hsl(0, 100%, 90%)", //pink
+      100,
+      "hsl(0, 100%, 50%)", //red
+      1000,
+      "hsl(47, 100%, 50%)", //orange
+      100000,
+      "hsl(250, 100%, 80%)", //light purple
+      250000,
+      "hsl(250, 100%, 50%)", // blue
+      750000,
+      "hsl(182, 15%, 40%)",// green grey
+      2000000,
+      "hsl(250, 100%, 0%)",//black
+
+    ],
+                'fill-opacity': 0.80
+            },
+        },firstSymbolId);
+
+
+
+
+
+    map.addLayer({
+            'id': 'total deaths per million',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': './geoData/coronavirus.geojson'
+            },
+            'layout': {
+                'visibility': 'none'
+            },
+          //  "filter": ["==", 0, 100],
+            'paint': {
+            'fill-color': [
+      "interpolate",
+      ["linear"],
+      ["get", "TotalDeathsPM"],
+      0,
+      "hsl(0, 100%, 100%)", //white
+      25,
+      "hsl(0, 100%, 90%)", //pink
+      100,
+      "hsl(0, 100%, 50%)", //red
+      1000,
+      "hsl(47, 100%, 50%)", //orange
+      100000,
+      "hsl(250, 100%, 80%)", //light purple
+      250000,
+      "hsl(250, 100%, 50%)", // blue
+      750000,
+      "hsl(182, 15%, 40%)",// green grey
+      2000000,
+      "hsl(250, 100%, 0%)",//black
+
+    ],
+                'fill-opacity': 0.80
+            },
+        },firstSymbolId);
+
+
+    map.addLayer({
+            'id': 'new deaths per million',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': './geoData/coronavirus.geojson'
+            },
+            'layout': {
+                'visibility': 'none'
+            },
+          //  "filter": ["==", 0, 100],
+            'paint': {
+            'fill-color': [
+      "interpolate",
+      ["linear"],
+      ["get", "NewDeathsPM"],
+      0,
+      "hsl(0, 100%, 100%)", //white
+      25,
+      "hsl(0, 100%, 90%)", //pink
+      100,
+      "hsl(0, 100%, 50%)", //red
+      1000,
+      "hsl(47, 100%, 50%)", //orange
+      100000,
+      "hsl(250, 100%, 80%)", //light purple
+      250000,
+      "hsl(250, 100%, 50%)", // blue
+      750000,
+      "hsl(182, 15%, 40%)",// green grey
+      2000000,
+      "hsl(250, 100%, 0%)",//black
+
+    ],
+                'fill-opacity': 0.80
+            },
+        },firstSymbolId);
+
+
+
+
+
+
+
+
+    for (var i = 0; i<= 182; i++) {
+    //  var match = slider.value + i;
+    var year = parseInt(slider.value);
+      map.addLayer({
+              'id': 'total cases' + i,
+              'type': 'fill',
+              'source': 'coronavirus' + i,
+              'source-layer': 'coronavirus' + i,
+              'minzoom': 1,
+              'maxzoom': 4,
+              'layout': {
+                  'visibility': 'none'
+              },
+            //  "filter": ['==', ['number', tracker[i]], year],
+              'paint': {
+              'fill-color': [
+        "interpolate",
+        ["linear"],
+        ["get", "TotalCases"],
+        0,
+        "hsl(0, 100%, 100%)", //white
+        25,
+        "hsl(0, 100%, 75%)", //pink
+        100,
+        "hsl(0, 100%, 70%)", //
+        1000,
+        "hsl(0, 100%, 65%)", //
+        10000,
+        "hsl(0, 100%, 60%)", //
+        100000,
+        "hsl(0, 100%, 55%)", //
+        250000,
+        "hsl(0, 15%, 50%)",//
+        500000,
+        "hsl(0, 100%, 45%)",
+        1000000,
+        "hsl(0, 100%, 40%)",//
+        2000000,
+        "hsl(0, 100%, 35%)",//dark red
+        4000000,
+        "hsl(0, 100%, 25%)",//
+      ],
+                  'fill-opacity': 0.80
+              },
+          },firstSymbolId);
+
+
+          map.addLayer({
+                  'id': 'new cases' + i,
+                  'type': 'fill',
+                  'source': 'coronavirus' + i,
+                  'source-layer': 'coronavirus' + i,
+                  'minzoom': 1,
+                  'maxzoom': 4,
+                  'layout': {
+                      'visibility': 'none'
+                  },
+                //  "filter": ['==', ['number', tracker[i]], year],
+                  'paint': {
+                  'fill-color': [
+            "interpolate",
+            ["linear"],
+            ["get", "NewCases"],
+            0,
+            "hsl(0, 100%, 100%)", //white
+            500,
+            "hsl(0, 100%, 75%)", //pink
+            1000,
+            "hsl(0, 100%, 70%)", //
+            5000,
+            "hsl(0, 100%, 65%)", //
+            12000,
+            "hsl(0, 100%, 60%)", //
+            20000,
+            "hsl(0, 100%, 55%)", //
+            30000,
+            "hsl(0, 15%, 50%)",//
+            40000,
+            "hsl(0, 100%, 45%)",
+            50000,
+            "hsl(0, 100%, 40%)",//
+            60000,
+            "hsl(0, 100%, 35%)",//dark red
+            80000,
+            "hsl(0, 100%, 25%)",//
+          ],
+                      'fill-opacity': 0.80
+                  },
+              },firstSymbolId);
+
+
+              map.addLayer({
+                      'id': 'total deaths' + i,
+                      'type': 'fill',
+                      'source': 'coronavirus' + i,
+                      'source-layer': 'coronavirus' + i,
+                      'minzoom': 1,
+                      'maxzoom': 4,
+                      'layout': {
+                          'visibility': 'none'
+                      },
+                  //    "filter": ['==', ['number', tracker[i]], year],
+                      'paint': {
+                      'fill-color': [
+                "interpolate",
+                ["linear"],
+                ["get", "TotalDeaths"],
+                0,
+                "hsl(0, 100%, 100%)", //white
+                25,
+                "hsl(0, 100%, 75%)", //pink
+                100,
+                "hsl(0, 100%, 70%)", //
+                1000,
+                "hsl(0, 100%, 65%)", //
+                5000,
+                "hsl(0, 100%, 60%)", //
+                10000,
+                "hsl(0, 100%, 55%)", //
+                25000,
+                "hsl(0, 15%, 50%)",//
+                50000,
+                "hsl(0, 100%, 45%)",
+                100000,
+                "hsl(0, 100%, 40%)",//
+                150000,
+                "hsl(0, 100%, 35%)",//dark red
+                200000,
+                "hsl(0, 100%, 25%)",//
+              ],
+                          'fill-opacity': 0.80
+                      },
+                  },firstSymbolId);
+
+                  map.addLayer({
+                          'id': 'new deaths' + i,
+                          'type': 'fill',
+                          'source': 'coronavirus' + i,
+                          'source-layer': 'coronavirus' + i,
+                          'minzoom': 1,
+                          'maxzoom': 4,
+                          'layout': {
+                              'visibility': 'none'
+                          },
+                      //    "filter": ['==', ['number', tracker[i]], year],
+                          'paint': {
+                          'fill-color': [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "NewDeaths"],
+                    0,
+                    "hsl(0, 100%, 100%)", //white
+                    25,
+                    "hsl(0, 100%, 75%)", //pink
+                    100,
+                    "hsl(0, 100%, 70%)", //
+                    500,
+                    "hsl(0, 100%, 65%)", //
+                    759,
+                    "hsl(0, 100%, 60%)", //
+                    1000,
+                    "hsl(0, 100%, 55%)", //
+                    2000,
+                    "hsl(0, 15%, 50%)",//
+                    2500,
+                    "hsl(0, 100%, 45%)",
+                    3000,
+                    "hsl(0, 100%, 40%)",//
+                    4000,
+                    "hsl(0, 100%, 35%)",//dark red
+                    5000,
+                    "hsl(0, 100%, 25%)",//
+                  ],
+                              'fill-opacity': 0.80
+                          },
+                      },firstSymbolId);
+
+                      map.addLayer({
+                              'id': 'total cases PM' + i,
+                              'type': 'fill',
+                              'source': 'coronavirus' + i,
+                              'source-layer': 'coronavirus' + i,
+                              'minzoom': 1,
+                              'maxzoom': 3,
+                              'layout': {
+                                  'visibility': 'none'
+                              },
+                          //    "filter": ['==', ['number', tracker[i]], year],
+                              'paint': {
+                              'fill-color': [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "TotalCasesPM"],
+                        0,
+                        "hsl(0, 100%, 100%)", //white
+                        25,
+                        "hsl(0, 100%, 75%)", //pink
+                        100,
+                        "hsl(0, 100%, 70%)", //
+                        250,
+                        "hsl(0, 100%, 65%)", //
+                        500,
+                        "hsl(0, 100%, 60%)", //
+                        1000,
+                        "hsl(0, 100%, 55%)", //
+                        2500,
+                        "hsl(0, 15%, 50%)",//
+                        5000,
+                        "hsl(0, 100%, 45%)",
+                        10000,
+                        "hsl(0, 100%, 40%)",//
+                        20000,
+                        "hsl(0, 100%, 35%)",//dark red
+                        40000,
+                        "hsl(0, 100%, 25%)",//
+                      ],
+                                  'fill-opacity': 0.80
+                              },
+                          },firstSymbolId);
+
+                          map.addLayer({
+                                  'id': 'new cases PM' + i,
+                                  'type': 'fill',
+                                  'source': 'coronavirus' + i,
+                                  'source-layer': 'coronavirus' + i,
+                                  'minzoom': 1,
+                                  'maxzoom': 4,
+                                  'layout': {
+                                      'visibility': 'none'
+                                  },
+                                  //"filter": ["==", i, slider.value],
+                                  'paint': {
+                                  'fill-color': [
+                            "interpolate",
+                            ["linear"],
+                            ["get", "NewCasesPM"],
+                            0,
+                            "hsl(0, 100%, 100%)", //white
+                            5,
+                            "hsl(0, 100%, 75%)", //pink
+                            10,
+                            "hsl(0, 100%, 70%)", //
+                            50,
+                            "hsl(0, 100%, 65%)", //
+                            100,
+                            "hsl(0, 100%, 60%)", //
+                            150,
+                            "hsl(0, 100%, 55%)", //
+                            200,
+                            "hsl(0, 15%, 50%)",//
+                            250,
+                            "hsl(0, 100%, 45%)",
+                            500,
+                            "hsl(0, 100%, 40%)",//
+                            750,
+                            "hsl(0, 100%, 35%)",//dark red
+                            1000,
+                            "hsl(0, 100%, 25%)",//
+                          ],
+                                      'fill-opacity': 0.80
+                                  },
+                              },firstSymbolId);
+
+
+                              map.addLayer({
+                                      'id': 'total deaths PM' + i,
+                                      'type': 'fill',
+                                      'source': 'coronavirus' + i,
+                                      'source-layer': 'coronavirus' + i,
+                                      'minzoom': 1,
+                                      'maxzoom': 4,
+                                      'layout': {
+                                          'visibility': 'none'
+                                      },
+                            //          "filter": ['==', ['number', tracker[i]], year],
+                                      'paint': {
+                                      'fill-color': [
+                                "interpolate",
+                                ["linear"],
+                                ["get", "TotalDeathsPM"],
+                                0,
+                                "hsl(0, 100%, 100%)", //white
+                                25,
+                                "hsl(0, 100%, 75%)", //pink
+                                50,
+                                "hsl(0, 100%, 70%)", //
+                                100,
+                                "hsl(0, 100%, 65%)", //
+                                150,
+                                "hsl(0, 100%, 60%)", //
+                                250,
+                                "hsl(0, 100%, 55%)", //
+                                500,
+                                "hsl(0, 15%, 50%)",//
+                                750,
+                                "hsl(0, 100%, 45%)",
+                                1000,
+                                "hsl(0, 100%, 40%)",//
+                                1500,
+                                "hsl(0, 100%, 35%)",//dark red
+                                2000,
+                                "hsl(0, 100%, 25%)",//
+                              ],
+                                          'fill-opacity': 0.80
+                                      },
+                                  },firstSymbolId);
+
+
+
+                                  map.addLayer({
+                                          'id': 'new deaths PM' + i,
+                                          'type': 'fill',
+                                          'source': 'coronavirus' + i,
+                                          'source-layer': 'coronavirus' + i,
+                                          'minzoom': 1,
+                                          'maxzoom': 4,
+                                          'layout': {
+                                              'visibility': 'none'
+                                          },
+                            //              "filter": ['==', ['number', tracker[i]], year],
+                                          'paint': {
+                                          'fill-color': [
+                                    "interpolate",
+                                    ["linear"],
+                                    ["get", "NewDeathsPM"],
+                                    0,
+                                    "hsl(0, 100%, 100%)", //white
+                                    1,
+                                    "hsl(0, 100%, 75%)", //pink
+                                    2,
+                                    "hsl(0, 100%, 70%)", //
+                                    3,
+                                    "hsl(0, 100%, 65%)", //
+                                    4,
+                                    "hsl(0, 100%, 60%)", //
+                                    5,
+                                    "hsl(0, 100%, 55%)", //
+                                    6,
+                                    "hsl(0, 15%, 50%)",//
+                                    7,
+                                    "hsl(0, 100%, 45%)",
+                                    8,
+                                    "hsl(0, 100%, 40%)",//
+                                    9,
+                                    "hsl(0, 100%, 35%)",//dark red
+                                    10,
+                                    "hsl(0, 100%, 25%)",//
+                                  ],
+                                              'fill-opacity': 0.80
+                                          },
+                                      },firstSymbolId);
+
+
+
+    }
+
+
+
+
+
+
+
+            });
+          }
+
+for (var i = 0; i < inputs.length; i++) {
+    inputs[i].onclick = switchLayer;
+}
+
+
+  </script>
+</body>

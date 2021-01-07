@@ -1,0 +1,967 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Map Demo</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Not needed as overwritten just below it
+  body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; } */
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica Neue", Helvetica, Arial, Sans-serif;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+
+      h1 {
+        font-size: 16px;
+        line-height: 30px;
+        /* display: inline-block; */
+        display: block;
+      }
+
+      h2 {
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 10px;
+      }
+
+      a {
+        text-decoration: none;
+        color: #2dc4b2;
+      }
+
+      #console {
+        position: absolute;
+        width: 240px;
+        margin: 10px;
+        padding: 10px 20px;
+        background-color: white;
+      }
+
+      .session {
+        font-size: medium;
+        margin-bottom: 20px;
+      }
+
+      .row {
+        height: 12px;
+        width: 100%;
+      }
+
+      .colors {
+        background: linear-gradient(
+          to right,
+          #2dc4b2,
+          #3bb3c3,
+          #669ec4,
+          #8b88b6,
+          #a2719b,
+          #aa5e79
+        );
+        margin-bottom: 5px;
+      }
+
+      .label {
+        width: 15%;
+        display: inline-block;
+        text-align: center;
+      }
+
+      .listing-group {
+        font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+        font-weight: 600;
+        position: absolute;
+        top: 15px;
+        right: 7%;
+        z-index: 1;
+        border-radius: 3px;
+        /*  max-width: 20%; */
+        color: #fff;
+        display: flex;
+      }
+
+      /* All the listing-group classes are used to toggle interactions */
+      .listing-group input[type="checkbox"]:first-child + label {
+        border-radius: 3px 0px 0px 3px;
+      }
+
+      .listing-group label:last-child {
+        border-radius: 0 3px 3px 0px;
+        border: none;
+      }
+
+      .listing-group input[type="checkbox"] {
+        display: none;
+      }
+
+      .listing-group input[type="checkbox"] + label {
+        background-color: #3386c0;
+        display: block;
+        cursor: pointer;
+        padding: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+      }
+
+      .listing-group input[type="checkbox"] + label {
+        background-color: #3386c0;
+        text-transform: capitalize;
+      }
+
+      .listing-group input[type="checkbox"] + label:hover,
+      .listing-group input[type="checkbox"]:checked + label {
+        background-color: #4ea0da;
+      }
+
+      .listing-group input[type="checkbox"]:checked + label:before {
+        /* content: "✔"; */
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <style>
+      #menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        font-family: "Open Sans", sans-serif;
+      }
+
+      #menu a {
+        font-size: 13px;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+        text-align: center;
+        top: auto;
+      }
+
+      #menu a:last-child {
+        border: none;
+      }
+
+      #menu a:hover {
+        /*background-color: #f8f8f8;
+        color: #404040;*/
+        background-color: #3887be;
+        color: #ffffff;
+      }
+
+      #menu a.active {
+        background-color: #3887be;
+        color: #ffffff;
+      }
+
+      #menu a.active:hover {
+        background: #3074a4;
+      }
+
+      /*  .dropdownEarthquakes {
+        position: absolute;
+        background: #fff;
+        width: 120px;
+        right: 120px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        background-color: lightblue;
+        display: none;
+        top: 160px;
+      }
+
+      .dropdownTest2 {
+        position: absolute;
+        background: #fff;
+        width: 120px;
+        right: 120px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        background-color: lightblue;
+        display: none;
+        top: 160px;
+      } */
+
+      .dropdown {
+        position: absolute;
+        background: #fff;
+        width: 120px;
+        right: 120px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        background-color: lightblue;
+        display: none;
+        top: 160px;
+      }
+
+      /*  .dropdownArtworks {
+        position: absolute;
+        background: #fff;
+        width: 120px;
+        right: 120px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        background-color: lightblue;
+        display: none;
+        top: 50px;
+      } */
+
+      /* When adding back in different display options, take this out */
+      #streets {
+        display: none;
+      }
+
+      #slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 10px;
+        border-radius: 25px;
+        background: #d3d3d3;
+        opacity: 0.7;
+      }
+
+      #slider:hover {
+        opacity: 1;
+      }
+
+      /* #slider::-webkit-slider-thumb {
+        appearance: none;
+        width: 5%;
+        height: 10%;
+        border-radius: 50%;
+        background: #3386c0;
+        cursor: pointer;
+      } */
+
+      #prefix {
+        font-size: smaller;
+      }
+
+      #increment {
+        display: inline;
+      }
+
+      #numberIncrement {
+        width: 5em;
+      }
+    </style>
+
+    <div id="map"></div>
+    <nav id="menu"></nav>
+    <!-- console id is used for top left box -->
+    <div id="console">
+      <div class="session">
+        <div class="session" id="sliderbar">
+          <h1>
+            Year:
+            <label id="active-hour">150</label>
+            <label id="prefix">BCE</label>
+          </h1>
+          <input
+            id="slider"
+            class="row"
+            type="range"
+            min="-150"
+            max="2020"
+            step="1"
+            value="-150"
+          />
+        </div>
+        <h2>
+          <!-- Slider Increment: -->
+          <div id="increment">
+            <label for="increment">Input Slider Increment: </label>
+            <input
+              type="number"
+              id="numberIncrement"
+              name="numberIncrement"
+              min="-2020"
+              max="2020"
+              value="1"
+              step="1"
+              required
+            />
+          </div>
+        </h2>
+      </div>
+
+      <!-- Changing the map's style - found in Map Services  -->
+      <div id="mapMenu">
+        <!-- <input id="basic" type="radio" name="rtoggle" value="basic" />
+      <label for="basic">Basic</label> -->
+        <input
+          id="streets"
+          type="radio"
+          name="rtoggle"
+          value="streets"
+          checked="checked"
+        />
+        <!-- <label for="streets">Streets</label>
+      <input id="bright" type="radio" name="rtoggle" value="bright" />
+      <label for="bright">Bright</label>
+      <input id="light" type="radio" name="rtoggle" value="light" />
+      <label for="light">Light</label>
+      <input id="dark" type="radio" name="rtoggle" value="dark" />
+      <label for="dark">Dark</label>
+      <input id="satellite" type="radio" name="rtoggle" value="satellite" />
+      <label for="satellite">Satellite</label> -->
+      </div>
+
+      <nav id="listing-group" class="listing-group">
+        <input type="checkbox" id="Rewind" name="box" />
+        <label for="Rewind">RW</label>
+        <input type="checkbox" id="Play" name="box" />
+        <label for="Play">Play</label>
+        <input type="checkbox" id="FastForward" name="box" />
+        <label for="FastForward">FF</label>
+      </nav>
+
+      <div id="Info"></div>
+      <div class="map-overlay" id="features">
+        <!--  <div id="pd"><p>Hover over a state!</p></div> -->
+      </div>
+      <div class="map-overlay" id="legend"></div>
+
+      <div id="Info2"></div>
+      <div class="map-overlay" id="features">
+        <div id="pe"><p></p></div>
+      </div>
+      <div class="map-overlay" id="legend"></div>
+    </div>
+
+  <script>
+  function oneCheckbox(checkbox) {
+    var checkboxes = document.getElementsByName("box");
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i] !== checkbox) {
+        checkboxes[i].checked = false;
+      }
+    }
+  }
+
+  //Allows the user to move the slider while a button is checked
+  function moveSliderWhenButtonIsClicked(e) {
+    var checkboxes = document.getElementsByName("box");
+    var trueCheck;
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked === true) {
+        //trueCheck remembers which one was clicked before
+        trueCheck = checkboxes[i];
+        checkboxes[i].checked = false;
+      } else {
+        checkboxes[i].checked = false;
+      }
+    }
+    return trueCheck;
+  }
+
+  //makes every checkbox in console false
+  function clearChecked() {
+    var checkboxes = document.getElementsByName("box");
+    for (var i = 0; i < checkboxes.length; i++) {
+      checkboxes[i].checked = false;
+    }
+  }
+
+  //checks to see which (if any) checkbox is checked and returns said checkbox
+  function isAnyBoxChecked() {
+    var checkboxes = document.getElementsByName("box");
+    var isItClicked = false;
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked === true) {
+        isItClicked = true;
+      }
+    }
+    return isItClicked;
+  }
+
+  //used for having just one button checked at a time
+  var rewind = document.getElementById("Rewind");
+  var play = document.getElementById("Play");
+  var FastForward = document.getElementById("FastForward");
+
+  //if the rewind button is clicked, then make that the only button clicked
+  rewind.addEventListener("click", function () {
+    oneCheckbox(rewind);
+  });
+
+  //if the play button is clicked, then make that the only button clicked
+  play.addEventListener("click", function () {
+    oneCheckbox(play);
+  });
+
+  //if the Fast Forward button is clicked, then make that the only button clicked
+  FastForward.addEventListener("click", function () {
+    oneCheckbox(FastForward);
+  });
+
+  mapboxgl.accessToken = 'pk.eyJ1IjoiYXZub2VuMTkiLCJhIjoiY2ppMG9iMml6MWEzcTNwbnRva3R5OXRobiJ9.n23rf98MvFUApmS9YNosfQ';
+  // account token
+  var artworks = {"type":"FeatureCollection","features":[
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [72.4258, 35.2227] }, "properties": {"name": "Amluk Dara Stupa", "year": 1000, "location": "Swat Valley, Pakistan", "pic":"./infoDocs/pics/amlukDaraStupa.jpg", "info": "./infoDocs/amlukDaraStupa.html", "id": "amlukDaraStupa" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [84.1240, 28.3949] }, "properties": {"name": "Buddhist Deity White Tara", "year":1400 , "location": "Nepal", "pic":"./infoDocs/pics/buddhistDeityWhiteTara.jpg", "info": "./infoDocs/buddhistDeityWhiteTara.html", "id":"buddhistDeityWhiteTara" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [83.022701, 25.376201] }, "properties": {"name": "Lion Capital", "year": -250 , "location": "Sarnath, India", "pic":"./infoDocs/pics/lionCapital.jpg", "info": "./infoDocs/lionCapital.html", "id": "lionCapital" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [77.7418, 23.4873] }, "properties": {"name": "Great Stupa at Sanchi (+1)", "year":-300 , "location": "Madhya Pradesh, India", "pic":"./infoDocs/pics/sanchiStupa.jpg", "info": "./infoDocs/sanchiStupa.html", "id": "sanchiStupa" }},
+
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [77.6737, 27.4924] }, "properties": {"name": "Buddha and Attendants", "year":200 , "location": "Madhya Pradesh, India", "pic":"./infoDocs/pics/buddhaAndAttendants.jpg", "info": "./infoDocs/buddhaAndAttendants.html", "id": "buddhaAndAttendants" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [83.022799, 25.376299] }, "properties": {"name": "Buddha Preaching His First Sermon", "year":475 , "location": "Sarnath, India", "pic":"./infoDocs/pics/buddhaFirstSermon.jpg", "info": "./infoDocs/buddhaFirstSermon.html", "id": "buddhaFirstSermon" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [121.5859, 31.2337] }, "properties": {"name": "CONG", "year": -2500 , "location": "Neolithic Period, Liangzhu culture", "pic":"./infoDocs/pics/cong.jpg", "info": "./infoDocs/cong.html", "id": "cong" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [114.1811, 36.0822] }, "properties": {"name": "Ritual Wine-Pouring Vessel (Guang)", "year": -1200 , "location" : "Shang Dynasty China", "pic":"./infoDocs/pics/guang.jpg", "info": "./infoDocs/guang.html", "id": "gong" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [109.151401, 34.225401] }, "properties": {"name": "Terra-Cotta Soldiers", "year": -210, "location": "Lintong, China", "pic":"./infoDocs/pics/tcs.jpg", "info": "./infoDocs/tcs.html", "id": "tcs" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [113.0274, 28.2055] }, "properties": {"name": "Painted Banner", "year":-160 , "location": "Changsha, Hunan", "pic":"./infoDocs/pics/paintedBanner.jpg", "info": "./infoDocs/paintedBanner.html", "id": "paintedBanner" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [116.3424, 35.4078] }, "properties": {"name": "A Reception in the Palace", "year":151 , "location": "Jiaxiang, China", "pic":"./infoDocs/pics/receptionPalace.jpg", "info": "./infoDocs/receptionPalace.html", "id": "receptionPalace" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [109.151455, 34.225455] }, "properties": {"name": "Archer, from Mausoleum of Emperor", "year":-210 , "location": "Lintong, China", "pic":"./infoDocs/pics/archer.jpg", "info": "./infoDocs/archer.html", "id": "archer" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [109.151499, 34.225499] }, "properties": {"name": "STRONGMAN", "year":-210 , "location": "Lintong, China", "pic":"./infoDocs/pics/strongMan.jpg", "info": "./infoDocs/strongMan.html", "id": "strongMan" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [113.3076, 34.7973] }, "properties": {"name": "Alter to Amitabha Buddha", "year":593 , "location": "Kaifang, LPS", "pic":"./infoDocs/pics/amitabhaBuddha.jpg", "info": "./infoDocs/amitabhaBuddha.html", "id": "amitabhaBuddha" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [108.9642, 34.2182] }, "properties": {"name": "Great Wild Goose Pagoda", "year": 645, "location": "Changan, Shanxi", "pic":"./infoDocs/pics/cienTemple.jpg", "info": "./infoDocs/cienTemple.html", "id": "cienTemple" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [108.939850, 34.341650] }, "properties": {"name": "Detail of Ladies prepping Newly Woven Silk", "year": 1100, "location": "Xian, Shanxi", "pic":"./infoDocs/pics/ladiesPrepSilk.jpg", "info": "./infoDocs/ladiesPrepSilk.html", "id": "ladiesPrepSilk" }},
+//  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [108.939801, 34.341601] }, "properties": {"name": "Camel Carrying Musicians", "year": 750, "location": "Xian, Shanxi", "pic":"./infoDocs/pics/camel.jpg", "info": "./infoDocs/camel.html", "id": "camel" }},
+//  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [108.939899, 34.341699] }, "properties": {"name": "Two Equestrian Figures", "year":750 , "location": "Xian, Shanxi", "pic":"./infoDocs/pics/equestrian.jpg", "info": "./infoDocs/equestrian.html", "id": "equestrian" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [28.9784, 41.0082] }, "properties": {"name": "Byzantine Silk: Emperor Hunting Lions", "year": 700, "location": "Mozac, France", "pic":"./infoDocs/pics/silk.jpg", "info": "./infoDocs/silk.html", "id": "silk" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [94.662001, 40.142101] }, "properties": {"name": "The Western Paradise of Amitabha Buddha", "year": 750, "location": "Dunhuang, China", "pic":"./infoDocs/pics/westernParadise.jpg", "info": "./infoDocs/westernParadise.html", "id": "westernParadise" }},
+//  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [94.662099, 40.142199] }, "properties": {"name": "Sculpture of seated Buddha (Cave 45)", "year":618 , "location": "Dunhuang, China", "pic":"./infoDocs/pics/seatedBuddha.jpg", "info": "./infoDocs/seatedBuddha.html", "id": "seatedBuddha" }},
+
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [136.7093, 34.4875] }, "properties": {"name": "Main Hall", "year": 2013, "location": "ISE, Japan", "pic":"./infoDocs/pics/mainHall.jpg", "info": "./infoDocs/mainHall.html", "id": "mainHall" }},
+//  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.735701, 34.614101] }, "properties": {"name": "Horyuji Compuound", "year":600 , "location": "Pagoda (west), Golden Hall(east)", "pic":"./infoDocs/pics/horyujiCompound.jpg", "info": "./infoDocs/horyujiCompound.html", "id": "horyujiCompound" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.735799, 34.614199] }, "properties": {"name": "Hungry Tigress Jataka", "year":650 , "location": "Horyuji, Japan", "pic":"./infoDocs/pics/jataka.jpg", "info": "./infoDocs/jataka.html", "id": "jataka" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.735750, 34.614150] }, "properties": {"name": "Buddha Shaka and Attendant BodhiSattvas", "year":623 , "location": "Horyuji, Japan", "pic":"./infoDocs/pics/shaka.jpg", "info": "./infoDocs/shaka.html", "id": "shaka" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.8398, 34.6890] }, "properties": {"name": "Lute with Design of Man Playing Biwa", "year":700 , "location": "Todaiji, japan", "pic":"./infoDocs/pics/lute.jpg", "info": "./infoDocs/lute.html", "id": "lute" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [-157.883201, 21.430701] }, "properties": {"name": "Byodion (Phoenix Hall)", "year":1053 , "location": "UJI, Japan (Hawaii)", "pic":"./infoDocs/pics/phoenixHall.jpg", "info": "./infoDocs/phoenixHall.html", "id": "phoenixHall" }},
+//  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [-157.883250, 21.430750] }, "properties": {"name": "Jocho Amida Buddha", "year":1053, "location": "Japan (Hawaii)", "pic":"./infoDocs/pics/amidaBuddha.jpg", "info": "./infoDocs/amidaBuddha.html", "id": "amidaBuddha" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.7861, 35.0116] }, "properties": {"name": "Scene from The Tale of Genji", "year":1150 , "location": "Gotoh Museum, Tokyo", "pic":"./infoDocs/pics/genji.jpg", "info": "./infoDocs/genji.html", "id": "genji" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [79.9199, 24.8318] }, "properties": {"name": "Kandariya Mahadeva Temple, Khajuraho", "year": 1000, "location": "Madhya Pradesh, India", "pic":"./infoDocs/pics/khajuraho.jpg", "info": "./infoDocs/khajuraho.html", "id": "khajuraho" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [110.2038, -7.6079] }, "properties": {"name": "Borobudur", "year":800 , "location": "Central Java, Indonesia", "pic":"./infoDocs/pics/borobudur.jpg", "info": "./infoDocs/borobudur.html", "id": "borobudur" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [103.8670, 13.4125] }, "properties": {"name": "ANGKOR WAT", "year":1150 , "location": "Angkor, Cambodia", "pic":"./infoDocs/pics/angkor.jpg", "info": "./infoDocs/angkor.html", "id": "angkor" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [78.0422, 27.1750] }, "properties": {"name": "TAJ MAHAL", "year":1631 , "location": "Agra India", "pic":"./infoDocs/pics/taj.jpg", "info": "./infoDocs/taj.html", "id": "taj" }},
+//  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [78.0081, 27.1767] }, "properties": {"name": "Nadir al-Zaman Jahangir and Shah ABBAS", "year":1618 , "location": "St. Petersburg Album", "pic":"./infoDocs/pics/nadir.jpg", "info": "./infoDocs/nadir.html", "id": "nadir" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [10.1043, 35.6814] }, "properties": {"name": "Blue Koran", "year":900 , "location": "Fatimid Tunisia", "pic":"./infoDocs/pics/blueKoran.jpg", "info": "./infoDocs/blueKoran.html", "id": "blueKoran" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [117.6743, 25.7204] }, "properties": {"name": "Seated Guanyin Buddha", "year":1050 , "location": "China", "pic":"./infoDocs/pics/guanyin.jpg", "info": "./infoDocs/guanyin.html", "id": "guanyin" }},
+//  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [113.3076, 34.7973] }, "properties": {"name": "Travelers Among Mountains and Streams", "year":1000 , "location": "China", "pic":"./infoDocs/pics/travelers.jpg", "info": "./infoDocs/travelers.html", "id": "travelers" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [126.5878, 37.9382] }, "properties": {"name": "The Bodhisattva Avalokiteshvaraa", "year":1375 , "location": "Korea", "pic":"./infoDocs/pics/avalok.jpg", "info": "./infoDocs/avalok.html", "id": "avalok" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [116.4074, 39.9042] }, "properties": {"name": "Sheep and Goat", "year":1300, "location": "China", "pic":"./infoDocs/pics/sheepGoat.jpg", "info": "./infoDocs/sheepGoat.html", "id": "sheepGoat" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [118.7969, 32.0603] }, "properties": {"name": "Poet on Mountaintop", "year":1500 , "location": "China", "pic":"./infoDocs/pics/poet.jpg", "info": "./infoDocs/poet.html", "id": "poet" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.7183, 35.0345] }, "properties": {"name": "Rock Garden", "year": 1480 , "location": "Japan", "pic":"./infoDocs/pics/rockGarden.jpg", "info": "./infoDocs/rockGarden.html", "id": "rockGarden" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.40492, 34.53331] }, "properties": {"name": "Taian TearRoom", "year":1582 , "location": "kyoto, japan", "pic":"./infoDocs/pics/taian.jpg", "info": "./infoDocs/taian.html", "id": "taian" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.768101, 35.011601] }, "properties": {"name": "Tea Bowl, Yugure(Twilight)", "year":1575, "location": "Japan", "pic":"./infoDocs/pics/yugure.jpg", "info": "./infoDocs/yugure.html", "id": "yugure" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [72.835438, 18.940241] }, "properties": {"name": "Victoria Terminus", "year":1887 , "location": "Mumbai, India", "pic":"./infoDocs/pics/victoria.jpg", "info": "./infoDocs/victoria.html", "id": "victoria" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [134.693894, 34.839757] }, "properties": {"name": "Himeji Castle", "year":1609 , "location": "Hyogo, Japan", "pic":"./infoDocs/pics/himeji.jpg", "info": "./infoDocs/himeji.html", "id": "himeji" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.769001, 35.680401] }, "properties": {"name": "The Flowers of Beatuy in the Floating World", "year":1769 , "location": "Japan", "pic":"./infoDocs/pics/floatingWorld.jpg", "info": "./infoDocs/floatingWorld.html", "id": "floatingWorld" }},
+ // {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.769050, 35.680450] }, "properties": {"name": "Otani Oniji in the Role of Yakko Edobe", "year":1794 , "location": "Japan", "pic":"./infoDocs/pics/yakko.jpg", "info": "./infoDocs/yakko.html", "id": "yakko" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.769098, 35.680498] }, "properties": {"name": "The Great Wave", "year":1831 , "location": "Japan", "pic":"./infoDocs/pics/wave.jpg", "info": "./infoDocs/wave.html", "id": "wave" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [116.397155, 39.916624] }, "properties": {"name": "The Forbidden City", "year":1420 , "location": "Palace Museum, Beijing", "pic":"./infoDocs/pics/forbidden.jpg", "info": "./infoDocs/forbidden.html", "id": "forbidden" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [101.711878, 3.1579] }, "properties": {"name": "Petronas Towers", "year":1998 , "location": "Kuala Lumpur, Malaysia", "pic":"./infoDocs/pics/towers.jpg", "info": "./infoDocs/towers.html", "id": "towers" }},
+  {  "type": "Feature", "geometry": { "type": "Point", "coordinates": [135.768198, 35.011698] }, "properties": {"name": "SKY II", "year":1990 , "location": "Japan", "pic":"./infoDocs/pics/skyII.jpg", "info": "./infoDocs/skyII.html", "id": "skyII" }}
+  ]}
+
+  //add map
+  var map = new mapboxgl.Map({
+    container: 'map', // container id specified in the HTML
+    style: 'mapbox://styles/mapbox/streets-v9', // style URL
+    center: [20, 20], // initial map center in [lon, lat]
+    zoom: 2
+  });
+
+
+
+
+
+ map.on('load', function() {
+
+ var layers = map.getStyle().layers;
+    // Find the index of the first symbol layer in the map style
+    var firstSymbolId;
+    for (var i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+            firstSymbolId = layers[i].id;
+            break;
+        }
+    }
+
+var zoomThreshold = 4;
+
+
+//var myListOfKeyValues = [{}];
+//var myListOfKeyPics = [{}];
+map.addLayer({ // Problem?
+          'id': 'links',
+          'type': 'symbol',
+          'source': {
+              'type': 'geojson',
+              'data': artworks
+          },
+          'layout': {
+              'visibility': 'none',
+              "icon-image": "marker-15",
+              "icon-size": 2.5,
+              "icon-allow-overlap": true
+          },
+      },firstSymbolId);
+
+      map.addLayer({ // Problem?
+                  'id': 'Silk Road',
+                  'type': 'line',
+                  'source': {
+                      'type': 'geojson',
+                      'data': './silkFinal1.geojson'
+                  },
+                  'layout': {
+                      'visibility': 'none',
+
+                  },
+              },firstSymbolId);
+
+    map.addLayer({ // Problem?
+                'id': 'Asian Artworks',
+                'type': 'symbol',
+                'source': {
+                    'type': 'geojson',
+                    'data': artworks
+                },
+                'layout': {
+                    'visibility': 'none',
+                    "icon-image": "marker-15",
+                    "icon-size": 2.5,
+                    "icon-allow-overlap": true
+                },
+            },firstSymbolId);
+
+
+map.addSource("artworks", {
+          "type" : "geojson",
+          "data" : artworks
+        })
+var count = 0;
+
+artworks.features.forEach(function(feature) {
+  var longurl = feature.properties['pic'];
+  var picture = feature.properties['id']
+  map.loadImage(longurl, function(error, image) {
+  if (error) throw error;
+  map.addImage(picture, image);
+  //feature.proerties['pic'] = feature.properties.pic.toString() //do
+})
+  var layerID = "Artworks"+ count;
+  if (!map.getLayer(layerID)){
+    map.addLayer({ // Problem?
+            'id': 'Artworks' + count,
+            'type': 'symbol',
+            'source': {
+                'type': 'geojson',
+                'data': artworks
+            },
+            'layout': {
+                'visibility': 'none',
+                "icon-size": .15,
+                "icon-allow-overlap": true,
+                "icon-image": picture
+              },
+              "filter": ["==", "id", picture]
+        },firstSymbolId);
+      }
+        count+=1
+      });
+     var year = -150
+      map.setFilter('links', ['<', ['number', ['get', 'year']], year]);
+      map.setFilter('Asian Artworks', ['<', ['number', ['get', 'year']], year])
+      for (var j = 0; j < artworks.features.length; j++) {
+        var layerName = "Artworks" + j
+        var icon = map.getLayoutProperty(layerName, "icon-image")
+        var layerDisplay = map.getLayer(layerName)
+        map.setFilter(layerName, ["all",
+          ['<', ['number', ['get', 'year']], year],
+          ['==', ['string', ['get', 'id']], icon]
+        ]);
+      } 
+
+    });
+//Click To get link to documents
+map.on('click', function(e) {
+var states = map.queryRenderedFeatures(e.point, {
+    layers: ['links']
+  });
+
+
+  if (states.length > 0) {
+    document.getElementById('pe').innerHTML = '<h3><strong>' + states[0].properties.name + '</strong></h3><p><strong><em>' + states[0].properties.year + '</strong>  <a href="'+ states[0].properties.info + '" > Link to Doc</a></em></p>';
+  } else {
+    document.getElementById('pe').innerHTML = '<p></p>';
+  }
+})
+/*map.on('click', function(e) {
+  for (var j = 0; j < artworks.features.length; j++) {
+  var layerName = "Artworks"+j
+  var states = map.queryRenderedFeatures(e.point, {
+      layers: [layerName]
+    });
+    if (states.length > 0) {
+      document.getElementById('pe').innerHTML = '<h3><strong>' + states[0].properties.name + '</strong></h3><p><strong><em>' + states[0].properties.year + '</strong>  <a href="'+ states[0].properties.info + '" > Link to Doc</a></em></p>';
+    } else {
+      document.getElementById('pe').innerHTML = '<p></p>';
+    }
+  }
+
+});*/
+
+
+
+
+var toggleableLayerIds = ["Asian Artworks", "links", "Silk Road"];
+
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+    var id = toggleableLayerIds[i];
+
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = '';
+    link.textContent = id;
+
+    link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+            if (clickedLayer == 'Asian Artworks') {
+            for (var j = 0; j < artworks.features.length; j++) {
+            var layerName = "Artworks"+j
+            map.setLayoutProperty(layerName, 'visibility', 'none');
+          }
+        }
+
+            this.className = '';
+          } else {
+            this.className = 'active';
+
+            if (clickedLayer == 'Asian Artworks') {
+            for (var j = 0; j <= artworks.features.length; j++) {
+            var layerName = "Artworks"+j
+            map.setLayoutProperty(layerName, 'visibility', 'visible');
+          }
+        }
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+}
+//used when user is moving slider to automatically update
+var sliderMove = document.getElementById("slider");
+var clickedCheck;
+var box;
+var yearNum;
+
+sliderMove.addEventListener("mousedown", function (e) {
+  clickedCheck = isAnyBoxChecked();
+  if (clickedCheck === true) {
+    box = moveSliderWhenButtonIsClicked(e);
+  }
+});
+
+sliderMove.addEventListener("mouseup", function () {
+  yearNum = sliderMove.value;
+  if (clickedCheck === true) {
+    box.checked = true;
+    oneCheckbox(box);
+    let changeup = new Event("change");
+    buttons.dispatchEvent(changeup);
+  }
+});
+
+var year = yearNum;
+
+/* Once there is a change in the checkbox value for any button, do the following code*/
+var buttons = document.getElementById("listing-group");
+
+buttons.addEventListener("change", function (e) {
+  var handler = e.target.id;
+  var consoleButtons = document.getElementsByName("box");
+  var checked = false;
+  var clickedBox;
+
+  for (var i = 0; i < consoleButtons.length; i++) {
+    if (consoleButtons[i].checked === true) {
+      clickedBox = consoleButtons[i];
+      checked = true;
+      oneCheckbox(clickedBox);
+    }
+  }
+
+  /*  if one of the buttons is checked do the following */
+  if (e.target.checked || checked) {
+    var slider = document.getElementById("slider");
+    /*  parseInt function changes first arg to an int */
+    var year = parseInt(e.target.value);
+    /*  var variable = document.getElementById("year");  */
+
+    var rewind = document.getElementById("Rewind");
+    var play = document.getElementById("Play");
+    var fastForward = document.getElementById("FastForward");
+
+    var increment;
+    //Following code is used to update the Slider Increment header
+    var headerIncrement = document.getElementById("increment");
+    var holderOfIncrement = document.getElementById("numberIncrement");
+
+    if (rewind.checked === true) {
+      increment = -10;
+      console.log("rewind pushed");
+      holderOfIncrement.value = "-10";
+      holderOfIncrement.placeholder = "-10";
+      /*  headerIncrement.innerText = increment.toString(10); */
+    }
+
+    if (play.checked === true) {
+      increment = numberIncrement.value;
+      console.log("play pushed");
+
+      if (increment === "") {
+        holderOfIncrement.value = "1";
+        holderOfIncrement.placeholder = "1";
+        increment = "1";
+      }
+    }
+
+    if (fastForward.checked === true) {
+      increment = 10;
+      console.log("FF pushed");
+      holderOfIncrement.value = "10";
+      holderOfIncrement.placeholder = "10";
+      /*   headerIncrement.innerText = increment.toString(10); */
+    }
+
+    var counter = slider.value;
+    var myInterval = setInterval(function () {
+      var year = slider.value;
+      year = parseInt(year);
+
+      increment = parseInt(increment);
+      counter = parseInt(counter);
+      counter = counter + increment;
+      slider.value = counter;
+
+      if (counter < slider.max) {
+        year = year + increment;
+      } else {
+        year = 2019;
+      }
+
+      if (counter < slider.min) {
+        year = slider.min;
+      }
+
+      if (counter > slider.max) {
+        year = slider.max;
+      }
+
+      //adds the prefix BCE when slider is moving using the play button and updates the year accordingly
+      if (year < 1) {
+        var prefix = "BCE";
+        document.getElementById("active-hour").innerText = year * -1 - 1; //1st
+        document.getElementById("prefix").innerText = prefix;
+      } else {
+        var prefix = "CE";
+        document.getElementById("active-hour").innerText = year - 1;
+        document.getElementById("prefix").innerText = prefix;
+      }
+
+      /* document.getElementById("active-hour").innerText = year - 1; //1st */
+
+      //setFilter filters out unwanted content in a layer
+      map.setFilter('links', ['<', ['number', ['get', 'year']], year]);
+      map.setFilter('Asian Artworks', ['<', ['number', ['get', 'year']], year])
+      for (var j = 0; j < artworks.features.length; j++) {
+        var layerName = "Artworks" + j
+        var icon = map.getLayoutProperty(layerName, "icon-image")
+        var layerDisplay = map.getLayer(layerName)
+        map.setFilter(layerName, ["all",
+          ['<', ['number', ['get', 'year']], year],
+          ['==', ['string', ['get', 'id']], icon]
+        ]);
+      }
+
+      if (slider.value == slider.max) {
+        e.target.checked = false;
+        checked = false;
+      }
+
+      if (slider.value === slider.min) {
+        e.target.checked = false;
+        checked = false;
+      }
+
+      if (checked === true && clickedBox.checked === false) {
+        checked = false;
+      }
+
+      if (e.target.checked || checked) {
+      } else {
+        clearInterval(myInterval);
+      }
+    }, 200);
+  } else {
+    //2nd
+    map.setFilter('links', ['<', ['number', ['get', 'year']], year]);
+    map.setFilter('Asian Artworks', ['<', ['number', ['get', 'year']], year])
+    for (var j = 0; j < artworks.features.length; j++) {
+      var layerName = "Artworks" + j
+      var icon = map.getLayoutProperty(layerName, "icon-image")
+      var layerDisplay = map.getLayer(layerName)
+      map.setFilter(layerName, ["all",
+        ['<', ['number', ['get', 'year']], year],
+        ['==', ['string', ['get', 'id']], icon]
+      ]);
+    }
+  }
+});
+
+document.getElementById("slider").addEventListener("input", function (e) {
+  //event listener for slider change
+  var year = parseInt(e.target.value);
+
+  //setFilter will update the map with only pictures that are less than the year
+  map.setFilter('links', ['<', ['number', ['get', 'year']], year]);
+  map.setFilter('Asian Artworks', ['<', ['number', ['get', 'year']], year])
+  for (var j = 0; j < artworks.features.length; j++) {
+    var layerName = "Artworks" + j
+    var icon = map.getLayoutProperty(layerName, "icon-image")
+    var layerDisplay = map.getLayer(layerName)
+    map.setFilter(layerName, ["all",
+      ['<', ['number', ['get', 'year']], year],
+      ['==', ['string', ['get', 'id']], icon]
+    ]);
+  }
+
+  //adds the prefix BCE when user is moving the slider independantly of the play button and updates the year accordingly
+  if (year < 2) {
+    var prefix = "BCE";
+    document.getElementById("active-hour").innerText = (year - 1) * -1; //1st
+    document.getElementById("prefix").innerText = prefix;
+  } else {
+    var prefix = "CE";
+    document.getElementById("active-hour").innerText = year - 1;
+    document.getElementById("prefix").innerText = prefix;
+  }
+});
+
+
+var layerList = document.getElementById('mapMenu');
+var inputs = layerList.getElementsByTagName('input');
+
+
+
+function switchLayer(layer) {
+    var layerId = layer.target.id;
+    map.setStyle('mapbox://styles/mapbox/' + layerId + '-v9');
+
+map.on('style.load', function() {
+
+var layers = map.getStyle().layers;
+    // Find the index of the first symbol layer in the map style
+    var firstSymbolId;
+    for (var i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+            firstSymbolId = layers[i].id;
+            break;
+        }
+    }
+
+
+/*
+
+*/
+map.addLayer({ // Problem?
+          'id': 'links',
+          'type': 'symbol',
+          'source': {
+              'type': 'geojson',
+              'data': artworks
+          },
+          'layout': {
+              'visibility': 'none',
+              "icon-image": "marker-15",
+              "icon-size": 2.5,
+              "icon-allow-overlap": true
+          },
+      },firstSymbolId);
+
+map.addLayer({ // Problem?
+            'id': 'Silk Road',
+            'type': 'line',
+            'source': {
+                'type': 'geojson',
+                'data': './silkFinal1.geojson'
+            },
+            'layout': {
+                'visibility': 'none',
+
+            },
+        },firstSymbolId);
+
+map.addSource("artworks", {
+          "type" : "geojson",
+          "data" : artworks
+        })
+        artworks.features.forEach(function(feature) {
+          var picture = feature.properties['pic'].slice(15);
+          map.loadImage(feature.properties['pic'], function(error, image) {
+          if (error) throw error;
+          map.addImage(picture, image); //do
+
+          map.addLayer({ // Problem?
+                    'id': 'Asian Artworks',
+                    'type': 'symbol',
+                    'source': {
+                        'type': 'geojson',
+                        'data': artworks
+                    },
+                    'layout': {
+                        'visibility': 'none',
+                        "icon-image": picture,
+                        "icon-size": .15,
+                        "icon-allow-overlap": true
+                    },
+                    "filter": ["==", "pic", picture]
+
+                },firstSymbolId);
+              })
+              });
+
+
+
+            });
+          }
+
+for (var i = 0; i < inputs.length; i++) {
+    inputs[i].onclick = switchLayer;
+}
+
+
+  </script>
+</body>

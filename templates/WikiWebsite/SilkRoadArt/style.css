@@ -1,0 +1,27 @@
+.onClickText {
+  height: 500px;
+  width : 750px;
+  background-size: cover;
+  display: inline-block;
+  border-radius: 16px;
+  margin:4px;
+  box-shadow: 0 0 16px
+  cursor: pointer;
+}
+
+#info {
+  text-align: center;
+  display: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 14px;
+  margin-left: 20px;
+  padding: 10px;
+  position: relative;
+  top: 80%;
+  width: 60%;
+  background-color: white;
+  color: black;
+  opacity: .75;
+}

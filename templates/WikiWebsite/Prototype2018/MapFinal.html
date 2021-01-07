@@ -1,0 +1,3660 @@
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <title>Map Demo</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.css' rel='stylesheet' />
+
+
+
+<style>
+
+ body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+  }
+
+  #map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 20px;
+    line-height: 30px;
+  }
+
+  h2 {
+    font-size: 14px;
+    line-height: 20px;
+    margin-bottom: 10px;
+  }
+
+  a {
+    text-decoration: none;
+    color: #2DC4B2;
+  }
+
+  #console {
+    position: absolute;
+    width: 240px;
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: white;
+  }
+
+  .session {
+    margin-bottom: 20px;
+  }
+
+  .row {
+    height: 12px;
+    width: 100%;
+  }
+
+  .colors {
+    background: linear-gradient(to right, #2DC4B2, #3BB3C3, #669EC4, #8B88B6, #A2719B, #AA5E79);
+    margin-bottom: 5px;
+  }
+
+  .label {
+    width: 15%;
+    display: inline-block;
+    text-align: center;
+  }
+
+    .listing-group {
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        font-weight: 600;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1;
+        border-radius: 3px;
+        max-width: 20%;
+        color: #fff;
+    }
+
+    .listing-group input[type=checkbox]:first-child + label {
+        border-radius: 3px 3px 0 0;
+    }
+
+    .listing-group label:last-child {
+        border-radius: 0 0 3px 3px;
+        border: none;
+    }
+
+    .listing-group input[type=checkbox] {
+        display: none;
+    }
+
+    .listing-group input[type=checkbox] + label {
+        background-color: #3386c0;
+        display: block;
+        cursor: pointer;
+        padding: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    .listing-group input[type=checkbox] + label {
+        background-color: #3386c0;
+        text-transform: capitalize;
+    }
+
+    .listing-group input[type=checkbox] + label:hover,
+    .listing-group input[type=checkbox]:checked + label {
+        background-color: #4ea0da;
+    }
+
+    .listing-group input[type=checkbox]:checked + label:before {
+        content: '✔';
+        margin-right: 5px;
+    }
+</nav>
+
+
+
+  </style>
+</head>
+
+<body>
+
+<style>
+
+
+
+.legend {
+    background-color: #fff;
+    border-radius: 3px;
+    bottom: 30px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    padding: 10px;
+    position: absolute;
+    right: 10px;
+    z-index: 1;
+}
+
+.legend h4 {
+    margin: 0 0 10px;
+}
+
+.legend div span {
+    border-radius: 50%;
+    display: inline-block;
+    height: 10px;
+    margin-right: 5px;
+    width: 10px;
+}
+
+    #menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0,0,0,0.4);
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    #menu a {
+        font-size: 13px;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0,0,0,0.25);
+        text-align: center;
+    }
+
+    #menu a:last-child {
+        border: none;
+    }
+
+    #menu a:hover {
+        background-color: #f8f8f8;
+        color: #404040;
+    }
+
+    #menu a.active {
+        background-color: #3887be;
+        color: #ffffff;
+    }
+
+    #menu a.active:hover {
+        background: #3074a4;
+    }
+
+</style>
+<div id='map'></div>
+<div id='state-legend' class='legend' style='display: none;'>
+    <h4>Population</h4>
+    <div><span style='background-color: #723122'></span>25,000,000</div>
+    <div><span style='background-color: #8B4225'></span>10,000,000</div>
+    <div><span style='background-color: #A25626'></span>7,500,000</div>
+    <div><span style='background-color: #B86B25'></span>5,000,000</div>
+    <div><span style='background-color: #CA8323'></span>2,500,000</div>
+    <div><span style='background-color: #DA9C20'></span>1,000,000</div>
+    <div><span style='background-color: #E6B71E'></span>750,000</div>
+    <div><span style='background-color: #EED322'></span>500,000</div>
+    <div><span style='background-color: #F2F12D'></span>0</div>
+</div>
+
+<div id='county-legend' class='legend' style='display: none;'>
+    <h4>Population</h4>
+    <div><span style='background-color: #723122'></span>1,000,000</div>
+    <div><span style='background-color: #8B4225'></span>500,000</div>
+    <div><span style='background-color: #A25626'></span>100,000</div>
+    <div><span style='background-color: #B86B25'></span>50,000</div>
+    <div><span style='background-color: #CA8323'></span>10,000</div>
+    <div><span style='background-color: #DA9C20'></span>5,000</div>
+    <div><span style='background-color: #E6B71E'></span>1,000</div>
+    <div><span style='background-color: #EED322'></span>100</div>
+    <div><span style='background-color: #F2F12D'></span>0</div>
+</div>
+
+  <nav id="menu"></nav>
+
+
+  <div id='console'>
+
+    <div class='session'>
+
+
+    <div class='session' id='sliderbar'>
+        <h1>Year: <label id='active-hour'>2018</label></h1>
+        <input id='slider' class='row' type='range' min='0' max='243' step='1' value='243' />
+    </div>
+    <h2>Slider Increment: 1</h2>
+  </div>
+
+
+
+<div id='mapMenu'>
+    <input id='basic' type='radio' name='rtoggle' value='basic' >
+    <label for='basic'>Basic</label>
+    <input id='streets' type='radio' name='rtoggle' value='streets' checked='checked'>
+    <label for='streets'>Streets</label>
+    <input id='bright' type='radio' name='rtoggle' value='bright'>
+    <label for='bright'>Bright</label>
+    <input id='light' type='radio' name='rtoggle' value='light'>
+    <label for='light'>Light</label>
+    <input id='dark' type='radio' name='rtoggle' value='dark'>
+    <label for='dark'>Dark</label>
+    <input id='satellite' type='radio' name='rtoggle' value='satellite'>
+    <label for='satellite'>Satellite</label>
+</div>
+
+<nav id='listing-group' class='listing-group'>
+    <input type='checkbox' id='Play' >
+    <label for='Play'>Play</label>
+</nav>
+
+<div id='Info'></div>
+<div class='map-overlay' id='features'><div id='pd'><p>Hover over a state!</p></div></div>
+<div class='map-overlay' id='legend'></div>
+
+<div id='Info2'></div>
+<div class='map-overlay' id='features'><div id='pe'><p></p></div></div>
+<div class='map-overlay' id='legend'></div>
+
+
+  <script>
+
+
+  mapboxgl.accessToken = 'pk.eyJ1IjoiYXZub2VuMTkiLCJhIjoiY2ppMG9iMml6MWEzcTNwbnRva3R5OXRobiJ9.n23rf98MvFUApmS9YNosfQ';
+  // account token
+
+  //add map
+  var map = new mapboxgl.Map({
+    container: 'map', // container id specified in the HTML
+    style: 'mapbox://styles/mapbox/streets-v9', // style URL
+    center: [20, 20], // initial map center in [lon, lat]
+    zoom: 2
+  });
+
+
+
+
+
+ map.on('load', function() {
+
+ var stateLegendEl = document.getElementById('state-legend');
+var countyLegendEl = document.getElementById('county-legend');
+map.on('zoom', function() {
+    if (map.getZoom() > zoomThreshold) {
+        stateLegendEl.style.display = 'none';
+        countyLegendEl.style.display = 'block';
+    } else {
+        stateLegendEl.style.display = 'block';
+        countyLegendEl.style.display = 'none';
+    }
+});
+
+ var layers = map.getStyle().layers;
+    // Find the index of the first symbol layer in the map style
+    var firstSymbolId;
+    for (var i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+            firstSymbolId = layers[i].id;
+            break;
+        }
+    }
+
+var zoomThreshold = 4;
+
+map.addLayer({
+        'id': 'Countries',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './UNMembers.geo.json'
+        },
+        'layout': {
+            'visibility': 'visible'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Num"],
+1,
+"hsl(2, 75%, 50%)",
+2,
+"hsl(4, 100%, 50%)",
+3,
+"hsl(6, 50%, 50%)",
+4,
+"hsl(8, 75%, 50%)",
+5,
+"hsl(10, 100%, 50%)",
+6,
+"hsl(12, 50%, 50%)",
+7,
+"hsl(14, 75%, 50%)",
+8,
+"hsl(16, 100%, 50%)",
+9,
+"hsl(18, 50%, 50%)",
+10,
+"hsl(20, 75%, 50%)",
+11,
+"hsl(22, 100%, 50%)",
+12,
+"hsl(24, 50%, 50%)",
+13,
+"hsl(26, 75%, 50%)",
+14,
+"hsl(28, 100%, 50%)",
+15,
+"hsl(30, 50%, 50%)",
+16,
+"hsl(32, 75%, 50%)",
+17,
+"hsl(34, 100%, 50%)",
+18,
+"hsl(36, 50%, 50%)",
+19,
+"hsl(38, 75%, 50%)",
+20,
+"hsl(40, 100%, 50%)",
+21,
+"hsl(42, 50%, 50%)",
+22,
+"hsl(44, 75%, 50%)",
+23,
+"hsl(46, 100%, 50%)",
+24,
+"hsl(48, 50%, 50%)",
+25,
+"hsl(50, 75%, 50%)",
+26,
+"hsl(52, 100%, 50%)",
+27,
+"hsl(54, 50%, 50%)",
+28,
+"hsl(56, 75%, 50%)",
+29,
+"hsl(58, 100%, 50%)",
+30,
+"hsl(60, 50%, 50%)",
+31,
+"hsl(62, 75%, 50%)",
+32,
+"hsl(64, 100%, 50%)",
+33,
+"hsl(66, 50%, 50%)",
+34,
+"hsl(68, 75%, 50%)",
+35,
+"hsl(70, 100%, 50%)",
+36,
+"hsl(72, 50%, 50%)",
+37,
+"hsl(74, 75%, 50%)",
+38,
+"hsl(76, 100%, 50%)",
+39,
+"hsl(78, 50%, 50%)",
+40,
+"hsl(80, 75%, 50%)",
+41,
+"hsl(82, 100%, 50%)",
+42,
+"hsl(84, 50%, 50%)",
+43,
+"hsl(86, 75%, 50%)",
+44,
+"hsl(88, 100%, 50%)",
+45,
+"hsl(90, 50%, 50%)",
+46,
+"hsl(92, 75%, 50%)",
+47,
+"hsl(94, 100%, 50%)",
+48,
+"hsl(96, 50%, 50%)",
+49,
+"hsl(98, 75%, 50%)",
+50,
+"hsl(100, 100%, 50%)",
+51,
+"hsl(102, 50%, 50%)",
+52,
+"hsl(104, 75%, 50%)",
+53,
+"hsl(106, 100%, 50%)",
+54,
+"hsl(108, 50%, 50%)",
+55,
+"hsl(110, 75%, 50%)",
+56,
+"hsl(112, 100%, 50%)",
+57,
+"hsl(114, 50%, 50%)",
+58,
+"hsl(116, 75%, 50%)",
+59,
+"hsl(118, 100%, 50%)",
+60,
+"hsl(120, 50%, 50%)",
+61,
+"hsl(122, 75%, 50%)",
+62,
+"hsl(124, 100%, 50%)",
+63,
+"hsl(126, 50%, 50%)",
+64,
+"hsl(128, 75%, 50%)",
+65,
+"hsl(130, 100%, 50%)",
+66,
+"hsl(132, 50%, 50%)",
+67,
+"hsl(134, 75%, 50%)",
+68,
+"hsl(136, 100%, 50%)",
+69,
+"hsl(138, 50%, 50%)",
+70,
+"hsl(140, 75%, 50%)",
+71,
+"hsl(142, 100%, 50%)",
+72,
+"hsl(144, 50%, 50%)",
+73,
+"hsl(146, 75%, 50%)",
+74,
+"hsl(148, 100%, 50%)",
+75,
+"hsl(150, 50%, 50%)",
+76,
+"hsl(152, 75%, 50%)",
+77,
+"hsl(154, 100%, 50%)",
+78,
+"hsl(156, 50%, 50%)",
+79,
+"hsl(158, 75%, 50%)",
+80,
+"hsl(160, 100%, 50%)",
+81,
+"hsl(162, 50%, 50%)",
+82,
+"hsl(164, 75%, 50%)",
+83,
+"hsl(166, 100%, 50%)",
+84,
+"hsl(168, 50%, 50%)",
+85,
+"hsl(170, 75%, 50%)",
+86,
+"hsl(172, 100%, 50%)",
+87,
+"hsl(174, 50%, 50%)",
+88,
+"hsl(176, 75%, 50%)",
+89,
+"hsl(178, 100%, 50%)",
+90,
+"hsl(180, 50%, 50%)",
+91,
+"hsl(182, 75%, 50%)",
+92,
+"hsl(184, 100%, 50%)",
+93,
+"hsl(186, 50%, 50%)",
+94,
+"hsl(188, 75%, 50%)",
+95,
+"hsl(190, 100%, 50%)",
+96,
+"hsl(192, 50%, 50%)",
+97,
+"hsl(194, 75%, 50%)",
+98,
+"hsl(196, 100%, 50%)",
+99,
+"hsl(198, 50%, 50%)",
+100,
+"hsl(200, 75%, 50%)",
+101,
+"hsl(202, 100%, 50%)",
+102,
+"hsl(204, 50%, 50%)",
+103,
+"hsl(206, 75%, 50%)",
+104,
+"hsl(208, 100%, 50%)",
+105,
+"hsl(210, 50%, 50%)",
+106,
+"hsl(212, 75%, 50%)",
+107,
+"hsl(214, 100%, 50%)",
+108,
+"hsl(216, 50%, 50%)",
+109,
+"hsl(218, 75%, 50%)",
+110,
+"hsl(220, 100%, 50%)",
+111,
+"hsl(222, 50%, 50%)",
+112,
+"hsl(224, 75%, 50%)",
+113,
+"hsl(226, 100%, 50%)",
+114,
+"hsl(228, 50%, 50%)",
+115,
+"hsl(230, 75%, 50%)",
+116,
+"hsl(232, 100%, 50%)",
+117,
+"hsl(234, 50%, 50%)",
+118,
+"hsl(236, 75%, 50%)",
+119,
+"hsl(238, 100%, 50%)",
+120,
+"hsl(240, 50%, 50%)",
+121,
+"hsl(242, 75%, 50%)",
+122,
+"hsl(244, 100%, 50%)",
+123,
+"hsl(246, 50%, 50%)",
+124,
+"hsl(248, 75%, 50%)",
+125,
+"hsl(250, 100%, 50%)",
+126,
+"hsl(252, 50%, 50%)",
+127,
+"hsl(254, 75%, 50%)",
+128,
+"hsl(256, 100%, 50%)",
+129,
+"hsl(258, 50%, 50%)",
+130,
+"hsl(260, 75%, 50%)",
+131,
+"hsl(262, 100%, 50%)",
+132,
+"hsl(264, 50%, 50%)",
+133,
+"hsl(266, 75%, 50%)",
+134,
+"hsl(268, 100%, 50%)",
+135,
+"hsl(270, 50%, 50%)",
+136,
+"hsl(272, 75%, 50%)",
+137,
+"hsl(274, 100%, 50%)",
+138,
+"hsl(276, 50%, 50%)",
+139,
+"hsl(278, 75%, 50%)",
+140,
+"hsl(280, 100%, 50%)",
+141,
+"hsl(282, 50%, 50%)",
+142,
+"hsl(284, 75%, 50%)",
+143,
+"hsl(286, 100%, 50%)",
+144,
+"hsl(288, 50%, 50%)",
+145,
+"hsl(290, 75%, 50%)",
+146,
+"hsl(292, 100%, 50%)",
+147,
+"hsl(294, 50%, 50%)",
+148,
+"hsl(296, 75%, 50%)",
+149,
+"hsl(298, 100%, 50%)",
+150,
+"hsl(300, 50%, 50%)",
+151,
+"hsl(302, 75%, 50%)",
+152,
+"hsl(304, 100%, 50%)",
+153,
+"hsl(306, 50%, 50%)",
+154,
+"hsl(308, 75%, 50%)",
+155,
+"hsl(310, 100%, 50%)",
+156,
+"hsl(312, 50%, 50%)",
+157,
+"hsl(314, 75%, 50%)",
+158,
+"hsl(316, 100%, 50%)",
+159,
+"hsl(318, 50%, 50%)",
+160,
+"hsl(320, 75%, 50%)",
+161,
+"hsl(322, 100%, 50%)",
+162,
+"hsl(324, 50%, 50%)",
+163,
+"hsl(326, 75%, 50%)",
+164,
+"hsl(328, 100%, 50%)",
+165,
+"hsl(330, 50%, 50%)",
+166,
+"hsl(332, 75%, 50%)",
+167,
+"hsl(334, 100%, 50%)",
+168,
+"hsl(336, 50%, 50%)",
+169,
+"hsl(338, 75%, 50%)",
+170,
+"hsl(340, 100%, 50%)"
+],
+            'fill-opacity': 0.40
+        },
+    }, firstSymbolId);
+
+
+ map.addLayer({
+        'id': 'Infant Mortality',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './UNMembers.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "InfantMortality"],
+  0,
+  "hsl(353, 58%, 10%)",
+  10,
+  "hsl(353, 58%, 25%)",
+  20,
+  "hsl(353, 58%, 20%)",
+  40,
+  "hsl(353, 58%, 30%)",
+  60,
+  "hsl(353, 58%, 35%)",
+  80,
+  "hsl(353, 58%, 40%)",
+  100,
+  "hsl(353, 58%, 45%)",
+  120,
+  "hsl(353, 58%, 50%)",
+  140,
+  "hsl(353, 58%, 55%)",
+  160,
+  "hsl(353, 58%, 60%)",
+  180,
+  "hsl(353, 58%, 65%)",
+  200,
+  "hsl(353, 58%, 75%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+
+ map.addLayer({
+        'id': 'EU Member States',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './members.geo.json'
+        },
+        'layout': { 'visibility': 'none'},
+        'paint': {
+            'fill-color': '#088',
+            'fill-opacity': 0.8
+       }
+    },firstSymbolId);
+
+
+
+
+
+map.addLayer({
+        'id': 'US Gini Coefficient',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1977"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    }, firstSymbolId);
+
+map.addLayer({
+        'id': 'Income78',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1978"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income79',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1979"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income80',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1980"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income81',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1981"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income82',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1982"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income83',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1983"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income84',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1984"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income85',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1985"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income86',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1986"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income87',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1987"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income88',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1988"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income89',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1989"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income90',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1990"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income91',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1991"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income92',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1992"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income93',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1993"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income94',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1994"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income95',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1995"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income96',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1996"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income97',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1997"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income98',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1998"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income99',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1999"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income00',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2000"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income01',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2001"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income02',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2002"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income03',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2003"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income04',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2004"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income05',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2005"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income06',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2006"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income07',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2007"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income08',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2008"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+map.addSource('population', {
+        'type': 'vector',
+        'url': 'mapbox://mapbox.660ui7x6'
+    });
+
+    map.addLayer({
+        'id': 'US Population',
+        'source': 'population',
+        'source-layer': 'state_county_population_2014_cen',
+        'maxzoom': zoomThreshold,
+        'type': 'fill',
+        'filter': ['==', 'isState', true],
+                'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+            'fill-color': [
+                'interpolate',
+                ['linear'],
+                ['get', 'population'],
+                0, '#F2F12D',
+                500000, '#EED322',
+                750000, '#E6B71E',
+                1000000, '#DA9C20',
+                2500000, '#CA8323',
+                5000000, '#B86B25',
+                7500000, '#A25626',
+                10000000, '#8B4225',
+                25000000, '#723122'
+            ],
+            'fill-opacity': 0.75
+        }
+    }, 'waterway-label');
+
+    map.addLayer({
+        'id': 'county-population',
+        'source': 'population',
+        'source-layer': 'state_county_population_2014_cen',
+        'minzoom': zoomThreshold,
+        'type': 'fill',
+        'filter': ['==', 'isCounty', true],
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+            'fill-color': [
+                'interpolate',
+                ['linear'],
+                ['get', 'population'],
+                0, '#F2F12D',
+                100, '#EED322',
+                1000, '#E6B71E',
+                5000, '#DA9C20',
+                10000, '#CA8323',
+                50000, '#B86B25',
+                100000, '#A25626',
+                500000, '#8B4225',
+                1000000, '#723122'
+            ],
+            'fill-opacity': 0.75
+        }
+    }, 'waterway-label');
+
+
+
+map.addLayer({
+        'id': 'US States',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': { 'visibility': 'none'},
+        'paint': {
+        'fill-color': 'hsl(324, 50%, 50%)',
+            'fill-opacity': 0.3
+       }
+      },firstSymbolId);
+
+  map.addLayer({
+        'id': 'UN Member States',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './UNMembers.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+            'fill-color': '#339',
+            'fill-opacity': 0.5
+        },
+    },firstSymbolId);
+
+
+map.addLayer({
+        'id': 'Literacy',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './UNMembers.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Literacy"],
+   19.1,
+  "hsl(227, 62%, 80%)",
+  30,
+  "hsla(227, 62%, 75%, 0.91)",
+  40,
+  "hsl(227, 62%, 70%)",
+  50,
+  "hsl(227, 62%, 65%)",
+  60,
+  "hsl(227, 62%, 60%)",
+  70,
+  "hsl(227, 62%, 55%)",
+  80,
+  "hsl(227, 62%, 50%)",
+  90,
+  "hsl(227, 62%, 45%)",
+  100,
+  "hsl(227, 62%, 40%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+});
+
+
+
+map.on('mousemove', function(e) {
+
+
+  var states = map.queryRenderedFeatures(e.point, {
+    layers: ['Literacy']
+  });
+
+  if (states.length > 0) {
+    document.getElementById('pd').innerHTML = '<h3><strong>' + states[0].properties.Name + '</strong></h3><p><strong><em>' + states[0].properties.Literacy + '</strong>% Literacy Rate (2015)  <a href="https://www.cia.gov/library/publications/the-world-factbook/fields/2103.html">  CIA World Factbook</a> </em></p>';
+
+  } else {
+    document.getElementById('pd').innerHTML = '<p></p>';
+  }
+
+
+var states = map.queryRenderedFeatures(e.point, {
+    layers: ['Infant Mortality']
+  });
+
+  if (states.length > 0) {
+    document.getElementById('pe').innerHTML = '<h3><strong>' + states[0].properties.Name + '</strong></h3><p><strong><em>' + states[0].properties.InfantMortality + '</strong> Infant Deaths/1000 Births (2017) <a href="https://www.cia.gov/library/publications/the-world-factbook/rankorder/2091rank.html">  CIA World Factbook</a></em></p>';
+  } else {
+    document.getElementById('pe').innerHTML = '<p></p>';
+  }
+
+
+
+
+
+
+
+
+});
+
+
+
+    var id = 'Countries';
+
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = id;
+    link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+            this.className = '';
+        } else {
+            this.className = 'active';
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+
+
+
+
+var toggleableLayerIds = ['UN Member States', 'US States', 'EU Member States', 'Infant Mortality', 'Literacy', 'US Gini Coefficient', 'US Population'];
+
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+    var id = toggleableLayerIds[i];
+
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = '';
+    link.textContent = id;
+
+    link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+
+            if (clickedLayer == 'US Population')
+{
+
+            map.setLayoutProperty('county-population', 'visibility', 'none');
+
+
+
+}
+            if (clickedLayer == 'US Gini Coefficient')
+{
+            map.setLayoutProperty('Income78', 'visibility', 'none');
+            map.setLayoutProperty('Income79', 'visibility', 'none');
+            map.setLayoutProperty('Income80', 'visibility', 'none');
+            map.setLayoutProperty('Income81', 'visibility', 'none');
+            map.setLayoutProperty('Income82', 'visibility', 'none');
+            map.setLayoutProperty('Income83', 'visibility', 'none');
+            map.setLayoutProperty('Income84', 'visibility', 'none');
+            map.setLayoutProperty('Income85', 'visibility', 'none');
+            map.setLayoutProperty('Income86', 'visibility', 'none');
+            map.setLayoutProperty('Income87', 'visibility', 'none');
+            map.setLayoutProperty('Income88', 'visibility', 'none');
+            map.setLayoutProperty('Income89', 'visibility', 'none');
+            map.setLayoutProperty('Income90', 'visibility', 'none');
+            map.setLayoutProperty('Income91', 'visibility', 'none');
+            map.setLayoutProperty('Income92', 'visibility', 'none');
+            map.setLayoutProperty('Income93', 'visibility', 'none');
+            map.setLayoutProperty('Income94', 'visibility', 'none');
+            map.setLayoutProperty('Income95', 'visibility', 'none');
+            map.setLayoutProperty('Income96', 'visibility', 'none');
+            map.setLayoutProperty('Income97', 'visibility', 'none');
+            map.setLayoutProperty('Income98', 'visibility', 'none');
+            map.setLayoutProperty('Income99', 'visibility', 'none');
+            map.setLayoutProperty('Income00', 'visibility', 'none');
+            map.setLayoutProperty('Income01', 'visibility', 'none');
+            map.setLayoutProperty('Income02', 'visibility', 'none');
+            map.setLayoutProperty('Income03', 'visibility', 'none');
+            map.setLayoutProperty('Income04', 'visibility', 'none');
+            map.setLayoutProperty('Income05', 'visibility', 'none');
+            map.setLayoutProperty('Income06', 'visibility', 'none');
+            map.setLayoutProperty('Income07', 'visibility', 'none');
+            map.setLayoutProperty('Income08', 'visibility', 'none');
+}
+            this.className = '';
+        } else {
+            this.className = 'active';
+
+             if (clickedLayer == 'US Population')
+{
+
+            map.setLayoutProperty('county-population', 'visibility', 'visible');
+
+}
+            if (clickedLayer == 'US Gini Coefficient')
+            {
+            map.setLayoutProperty('Income78', 'visibility', 'visible');
+            map.setLayoutProperty('Income79', 'visibility', 'visible');
+            map.setLayoutProperty('Income80', 'visibility', 'visible');
+            map.setLayoutProperty('Income81', 'visibility', 'visible');
+            map.setLayoutProperty('Income82', 'visibility', 'visible');
+            map.setLayoutProperty('Income83', 'visibility', 'visible');
+            map.setLayoutProperty('Income84', 'visibility', 'visible');
+            map.setLayoutProperty('Income85', 'visibility', 'visible');
+            map.setLayoutProperty('Income86', 'visibility', 'visible');
+            map.setLayoutProperty('Income87', 'visibility', 'visible');
+            map.setLayoutProperty('Income88', 'visibility', 'visible');
+            map.setLayoutProperty('Income89', 'visibility', 'visible');
+            map.setLayoutProperty('Income90', 'visibility', 'visible');
+            map.setLayoutProperty('Income91', 'visibility', 'visible');
+            map.setLayoutProperty('Income92', 'visibility', 'visible');
+            map.setLayoutProperty('Income93', 'visibility', 'visible');
+            map.setLayoutProperty('Income94', 'visibility', 'visible');
+            map.setLayoutProperty('Income95', 'visibility', 'visible');
+            map.setLayoutProperty('Income96', 'visibility', 'visible');
+            map.setLayoutProperty('Income97', 'visibility', 'visible');
+            map.setLayoutProperty('Income98', 'visibility', 'visible');
+            map.setLayoutProperty('Income99', 'visibility', 'visible');
+            map.setLayoutProperty('Income00', 'visibility', 'visible');
+            map.setLayoutProperty('Income01', 'visibility', 'visible');
+            map.setLayoutProperty('Income02', 'visibility', 'visible');
+            map.setLayoutProperty('Income03', 'visibility', 'visible');
+            map.setLayoutProperty('Income04', 'visibility', 'visible');
+            map.setLayoutProperty('Income05', 'visibility', 'visible');
+            map.setLayoutProperty('Income06', 'visibility', 'visible');
+            map.setLayoutProperty('Income07', 'visibility', 'visible');
+            map.setLayoutProperty('Income08', 'visibility', 'visible');
+            }
+
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+}
+
+document.getElementById('listing-group').addEventListener('change', function(e) {
+    var handler = e.target.id;
+    if (e.target.checked) {
+        var slider = document.getElementById('slider');
+ var year = parseInt(e.target.value) + 1776;
+var variable = document.getElementById('year');
+
+var counter = slider.value;
+var myInterval = setInterval(function () {
+  ++counter;
+slider.value = counter;
+
+if(counter < slider.max)
+{
+var year = counter + 1776;
+}
+else
+{
+year = 2019;
+}
+
+ document.getElementById('active-hour').innerText = year-1;
+ map.setFilter('EU Member States', ['<', ['number', ['get', 'Year']], year]); //change filter property
+
+  map.setFilter('UN Member States', ['<', ['number', ['get', 'Year']], year]);
+
+  map.setFilter('US States', ['<', ['number', ['get', 'Statehood']], year]);
+
+
+  map.setFilter('US Gini Coefficient', ['==', ['number', 1978], year]);
+  map.setFilter('Income78', ['==', ['number', 1979], year]);
+  map.setFilter('Income79', ['==', ['number', 1980], year]);
+  map.setFilter('Income80', ['==', ['number', 1981], year]);
+  map.setFilter('Income81', ['==', ['number', 1982], year]);
+  map.setFilter('Income82', ['==', ['number', 1983], year]);
+  map.setFilter('Income83', ['==', ['number', 1984], year]);
+  map.setFilter('Income84', ['==', ['number', 1985], year]);
+  map.setFilter('Income85', ['==', ['number', 1986], year]);
+  map.setFilter('Income86', ['==', ['number', 1987], year]);
+  map.setFilter('Income87', ['==', ['number', 1988], year]);
+  map.setFilter('Income88', ['==', ['number', 1989], year]);
+  map.setFilter('Income89', ['==', ['number', 1990], year]);
+  map.setFilter('Income90', ['==', ['number', 1991], year]);
+  map.setFilter('Income91', ['==', ['number', 1992], year]);
+  map.setFilter('Income92', ['==', ['number', 1993], year]);
+  map.setFilter('Income93', ['==', ['number', 1994], year]);
+  map.setFilter('Income94', ['==', ['number', 1995], year]);
+  map.setFilter('Income95', ['==', ['number', 1996], year]);
+  map.setFilter('Income96', ['==', ['number', 1997], year]);
+  map.setFilter('Income97', ['==', ['number', 1998], year]);
+  map.setFilter('Income99', ['==', ['number', 2000], year]);
+  map.setFilter('Income00', ['==', ['number', 2001], year]);
+  map.setFilter('Income01', ['==', ['number', 2002], year]);
+  map.setFilter('Income02', ['==', ['number', 2003], year]);
+  map.setFilter('Income03', ['==', ['number', 2004], year]);
+  map.setFilter('Income04', ['==', ['number', 2005], year]);
+  map.setFilter('Income05', ['==', ['number', 2006], year]);
+  map.setFilter('Income06', ['==', ['number', 2007], year]);
+  map.setFilter('Income07', ['==', ['number', 2008], year]);
+  map.setFilter('Income08', ['==', ['number', 2009], year]);
+
+
+
+
+
+if(slider.value == slider.max)
+{
+e.target.checked = ''
+}
+if(e.target.checked){}
+else{clearInterval(myInterval);
+ }
+}, 200);
+
+
+    } else {
+  map.setFilter('EU Member States', ['<', ['number', ['get', 'Year']], year]); //change filter property
+
+  map.setFilter('UN Member States', ['<', ['number', ['get', 'Year']], year]);
+
+  map.setFilter('US States', ['<', ['number', ['get', 'Statehood']], year]);
+
+
+  map.setFilter('US Gini Coefficient', ['==', ['number', 1978], year]);
+  map.setFilter('Income78', ['==', ['number', 1979], year]);
+  map.setFilter('Income79', ['==', ['number', 1980], year]);
+  map.setFilter('Income80', ['==', ['number', 1981], year]);
+  map.setFilter('Income81', ['==', ['number', 1982], year]);
+  map.setFilter('Income82', ['==', ['number', 1983], year]);
+  map.setFilter('Income83', ['==', ['number', 1984], year]);
+  map.setFilter('Income84', ['==', ['number', 1985], year]);
+  map.setFilter('Income85', ['==', ['number', 1986], year]);
+  map.setFilter('Income86', ['==', ['number', 1987], year]);
+  map.setFilter('Income87', ['==', ['number', 1988], year]);
+  map.setFilter('Income88', ['==', ['number', 1989], year]);
+  map.setFilter('Income89', ['==', ['number', 1990], year]);
+  map.setFilter('Income90', ['==', ['number', 1991], year]);
+  map.setFilter('Income91', ['==', ['number', 1992], year]);
+  map.setFilter('Income92', ['==', ['number', 1993], year]);
+  map.setFilter('Income93', ['==', ['number', 1994], year]);
+  map.setFilter('Income94', ['==', ['number', 1995], year]);
+  map.setFilter('Income95', ['==', ['number', 1996], year]);
+  map.setFilter('Income96', ['==', ['number', 1997], year]);
+  map.setFilter('Income97', ['==', ['number', 1998], year]);
+  map.setFilter('Income99', ['==', ['number', 2000], year]);
+  map.setFilter('Income00', ['==', ['number', 2001], year]);
+  map.setFilter('Income01', ['==', ['number', 2002], year]);
+  map.setFilter('Income02', ['==', ['number', 2003], year]);
+  map.setFilter('Income03', ['==', ['number', 2004], year]);
+  map.setFilter('Income04', ['==', ['number', 2005], year]);
+  map.setFilter('Income05', ['==', ['number', 2006], year]);
+  map.setFilter('Income06', ['==', ['number', 2007], year]);
+  map.setFilter('Income07', ['==', ['number', 2008], year]);
+  map.setFilter('Income08', ['==', ['number', 2009], year]);
+
+
+    }
+});
+
+
+
+
+
+document.getElementById('slider').addEventListener('input', function(e) { //event listener for slider change
+  var year = parseInt(e.target.value) + 1776;
+
+  // update the map
+  map.setFilter('EU Member States', ['<', ['number', ['get', 'Year']], year]); //change filter property
+
+  map.setFilter('UN Member States', ['<', ['number', ['get', 'Year']], year]);
+
+  map.setFilter('US States', ['<', ['number', ['get', 'Statehood']], year]);
+
+
+  map.setFilter('US Gini Coefficient', ['==', ['number', 1978], year]);
+  map.setFilter('Income78', ['==', ['number', 1979], year]);
+  map.setFilter('Income79', ['==', ['number', 1980], year]);
+  map.setFilter('Income80', ['==', ['number', 1981], year]);
+  map.setFilter('Income81', ['==', ['number', 1982], year]);
+  map.setFilter('Income82', ['==', ['number', 1983], year]);
+  map.setFilter('Income83', ['==', ['number', 1984], year]);
+  map.setFilter('Income84', ['==', ['number', 1985], year]);
+  map.setFilter('Income85', ['==', ['number', 1986], year]);
+  map.setFilter('Income86', ['==', ['number', 1987], year]);
+  map.setFilter('Income87', ['==', ['number', 1988], year]);
+  map.setFilter('Income88', ['==', ['number', 1989], year]);
+  map.setFilter('Income89', ['==', ['number', 1990], year]);
+  map.setFilter('Income90', ['==', ['number', 1991], year]);
+  map.setFilter('Income91', ['==', ['number', 1992], year]);
+  map.setFilter('Income92', ['==', ['number', 1993], year]);
+  map.setFilter('Income93', ['==', ['number', 1994], year]);
+  map.setFilter('Income94', ['==', ['number', 1995], year]);
+  map.setFilter('Income95', ['==', ['number', 1996], year]);
+  map.setFilter('Income96', ['==', ['number', 1997], year]);
+  map.setFilter('Income97', ['==', ['number', 1998], year]);
+  map.setFilter('Income98', ['==', ['number', 1999], year]);
+  map.setFilter('Income99', ['==', ['number', 2000], year]);
+  map.setFilter('Income00', ['==', ['number', 2001], year]);
+  map.setFilter('Income01', ['==', ['number', 2002], year]);
+  map.setFilter('Income02', ['==', ['number', 2003], year]);
+  map.setFilter('Income03', ['==', ['number', 2004], year]);
+  map.setFilter('Income04', ['==', ['number', 2005], year]);
+  map.setFilter('Income05', ['==', ['number', 2006], year]);
+  map.setFilter('Income06', ['==', ['number', 2007], year]);
+  map.setFilter('Income07', ['==', ['number', 2008], year]);
+  map.setFilter('Income08', ['==', ['number', 2009], year]);
+
+
+
+  // update text in the UI
+  document.getElementById('active-hour').innerText = year-1;
+});
+
+
+var layerList = document.getElementById('mapMenu');
+var inputs = layerList.getElementsByTagName('input');
+
+
+
+function switchLayer(layer) {
+    var layerId = layer.target.id;
+    map.setStyle('mapbox://styles/mapbox/' + layerId + '-v9');
+
+map.on('style.load', function() {
+
+var layers = map.getStyle().layers;
+    // Find the index of the first symbol layer in the map style
+    var firstSymbolId;
+    for (var i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+            firstSymbolId = layers[i].id;
+            break;
+        }
+    }
+
+map.addLayer({
+        'id': 'Countries',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './UNMembers.geo.json'
+        },
+        'layout': {
+            'visibility': 'visible'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Num"],
+1,
+"hsl(2, 75%, 50%)",
+2,
+"hsl(4, 100%, 50%)",
+3,
+"hsl(6, 50%, 50%)",
+4,
+"hsl(8, 75%, 50%)",
+5,
+"hsl(10, 100%, 50%)",
+6,
+"hsl(12, 50%, 50%)",
+7,
+"hsl(14, 75%, 50%)",
+8,
+"hsl(16, 100%, 50%)",
+9,
+"hsl(18, 50%, 50%)",
+10,
+"hsl(20, 75%, 50%)",
+11,
+"hsl(22, 100%, 50%)",
+12,
+"hsl(24, 50%, 50%)",
+13,
+"hsl(26, 75%, 50%)",
+14,
+"hsl(28, 100%, 50%)",
+15,
+"hsl(30, 50%, 50%)",
+16,
+"hsl(32, 75%, 50%)",
+17,
+"hsl(34, 100%, 50%)",
+18,
+"hsl(36, 50%, 50%)",
+19,
+"hsl(38, 75%, 50%)",
+20,
+"hsl(40, 100%, 50%)",
+21,
+"hsl(42, 50%, 50%)",
+22,
+"hsl(44, 75%, 50%)",
+23,
+"hsl(46, 100%, 50%)",
+24,
+"hsl(48, 50%, 50%)",
+25,
+"hsl(50, 75%, 50%)",
+26,
+"hsl(52, 100%, 50%)",
+27,
+"hsl(54, 50%, 50%)",
+28,
+"hsl(56, 75%, 50%)",
+29,
+"hsl(58, 100%, 50%)",
+30,
+"hsl(60, 50%, 50%)",
+31,
+"hsl(62, 75%, 50%)",
+32,
+"hsl(64, 100%, 50%)",
+33,
+"hsl(66, 50%, 50%)",
+34,
+"hsl(68, 75%, 50%)",
+35,
+"hsl(70, 100%, 50%)",
+36,
+"hsl(72, 50%, 50%)",
+37,
+"hsl(74, 75%, 50%)",
+38,
+"hsl(76, 100%, 50%)",
+39,
+"hsl(78, 50%, 50%)",
+40,
+"hsl(80, 75%, 50%)",
+41,
+"hsl(82, 100%, 50%)",
+42,
+"hsl(84, 50%, 50%)",
+43,
+"hsl(86, 75%, 50%)",
+44,
+"hsl(88, 100%, 50%)",
+45,
+"hsl(90, 50%, 50%)",
+46,
+"hsl(92, 75%, 50%)",
+47,
+"hsl(94, 100%, 50%)",
+48,
+"hsl(96, 50%, 50%)",
+49,
+"hsl(98, 75%, 50%)",
+50,
+"hsl(100, 100%, 50%)",
+51,
+"hsl(102, 50%, 50%)",
+52,
+"hsl(104, 75%, 50%)",
+53,
+"hsl(106, 100%, 50%)",
+54,
+"hsl(108, 50%, 50%)",
+55,
+"hsl(110, 75%, 50%)",
+56,
+"hsl(112, 100%, 50%)",
+57,
+"hsl(114, 50%, 50%)",
+58,
+"hsl(116, 75%, 50%)",
+59,
+"hsl(118, 100%, 50%)",
+60,
+"hsl(120, 50%, 50%)",
+61,
+"hsl(122, 75%, 50%)",
+62,
+"hsl(124, 100%, 50%)",
+63,
+"hsl(126, 50%, 50%)",
+64,
+"hsl(128, 75%, 50%)",
+65,
+"hsl(130, 100%, 50%)",
+66,
+"hsl(132, 50%, 50%)",
+67,
+"hsl(134, 75%, 50%)",
+68,
+"hsl(136, 100%, 50%)",
+69,
+"hsl(138, 50%, 50%)",
+70,
+"hsl(140, 75%, 50%)",
+71,
+"hsl(142, 100%, 50%)",
+72,
+"hsl(144, 50%, 50%)",
+73,
+"hsl(146, 75%, 50%)",
+74,
+"hsl(148, 100%, 50%)",
+75,
+"hsl(150, 50%, 50%)",
+76,
+"hsl(152, 75%, 50%)",
+77,
+"hsl(154, 100%, 50%)",
+78,
+"hsl(156, 50%, 50%)",
+79,
+"hsl(158, 75%, 50%)",
+80,
+"hsl(160, 100%, 50%)",
+81,
+"hsl(162, 50%, 50%)",
+82,
+"hsl(164, 75%, 50%)",
+83,
+"hsl(166, 100%, 50%)",
+84,
+"hsl(168, 50%, 50%)",
+85,
+"hsl(170, 75%, 50%)",
+86,
+"hsl(172, 100%, 50%)",
+87,
+"hsl(174, 50%, 50%)",
+88,
+"hsl(176, 75%, 50%)",
+89,
+"hsl(178, 100%, 50%)",
+90,
+"hsl(180, 50%, 50%)",
+91,
+"hsl(182, 75%, 50%)",
+92,
+"hsl(184, 100%, 50%)",
+93,
+"hsl(186, 50%, 50%)",
+94,
+"hsl(188, 75%, 50%)",
+95,
+"hsl(190, 100%, 50%)",
+96,
+"hsl(192, 50%, 50%)",
+97,
+"hsl(194, 75%, 50%)",
+98,
+"hsl(196, 100%, 50%)",
+99,
+"hsl(198, 50%, 50%)",
+100,
+"hsl(200, 75%, 50%)",
+101,
+"hsl(202, 100%, 50%)",
+102,
+"hsl(204, 50%, 50%)",
+103,
+"hsl(206, 75%, 50%)",
+104,
+"hsl(208, 100%, 50%)",
+105,
+"hsl(210, 50%, 50%)",
+106,
+"hsl(212, 75%, 50%)",
+107,
+"hsl(214, 100%, 50%)",
+108,
+"hsl(216, 50%, 50%)",
+109,
+"hsl(218, 75%, 50%)",
+110,
+"hsl(220, 100%, 50%)",
+111,
+"hsl(222, 50%, 50%)",
+112,
+"hsl(224, 75%, 50%)",
+113,
+"hsl(226, 100%, 50%)",
+114,
+"hsl(228, 50%, 50%)",
+115,
+"hsl(230, 75%, 50%)",
+116,
+"hsl(232, 100%, 50%)",
+117,
+"hsl(234, 50%, 50%)",
+118,
+"hsl(236, 75%, 50%)",
+119,
+"hsl(238, 100%, 50%)",
+120,
+"hsl(240, 50%, 50%)",
+121,
+"hsl(242, 75%, 50%)",
+122,
+"hsl(244, 100%, 50%)",
+123,
+"hsl(246, 50%, 50%)",
+124,
+"hsl(248, 75%, 50%)",
+125,
+"hsl(250, 100%, 50%)",
+126,
+"hsl(252, 50%, 50%)",
+127,
+"hsl(254, 75%, 50%)",
+128,
+"hsl(256, 100%, 50%)",
+129,
+"hsl(258, 50%, 50%)",
+130,
+"hsl(260, 75%, 50%)",
+131,
+"hsl(262, 100%, 50%)",
+132,
+"hsl(264, 50%, 50%)",
+133,
+"hsl(266, 75%, 50%)",
+134,
+"hsl(268, 100%, 50%)",
+135,
+"hsl(270, 50%, 50%)",
+136,
+"hsl(272, 75%, 50%)",
+137,
+"hsl(274, 100%, 50%)",
+138,
+"hsl(276, 50%, 50%)",
+139,
+"hsl(278, 75%, 50%)",
+140,
+"hsl(280, 100%, 50%)",
+141,
+"hsl(282, 50%, 50%)",
+142,
+"hsl(284, 75%, 50%)",
+143,
+"hsl(286, 100%, 50%)",
+144,
+"hsl(288, 50%, 50%)",
+145,
+"hsl(290, 75%, 50%)",
+146,
+"hsl(292, 100%, 50%)",
+147,
+"hsl(294, 50%, 50%)",
+148,
+"hsl(296, 75%, 50%)",
+149,
+"hsl(298, 100%, 50%)",
+150,
+"hsl(300, 50%, 50%)",
+151,
+"hsl(302, 75%, 50%)",
+152,
+"hsl(304, 100%, 50%)",
+153,
+"hsl(306, 50%, 50%)",
+154,
+"hsl(308, 75%, 50%)",
+155,
+"hsl(310, 100%, 50%)",
+156,
+"hsl(312, 50%, 50%)",
+157,
+"hsl(314, 75%, 50%)",
+158,
+"hsl(316, 100%, 50%)",
+159,
+"hsl(318, 50%, 50%)",
+160,
+"hsl(320, 75%, 50%)",
+161,
+"hsl(322, 100%, 50%)",
+162,
+"hsl(324, 50%, 50%)",
+163,
+"hsl(326, 75%, 50%)",
+164,
+"hsl(328, 100%, 50%)",
+165,
+"hsl(330, 50%, 50%)",
+166,
+"hsl(332, 75%, 50%)",
+167,
+"hsl(334, 100%, 50%)",
+168,
+"hsl(336, 50%, 50%)",
+169,
+"hsl(338, 75%, 50%)",
+170,
+"hsl(340, 100%, 50%)"
+],
+            'fill-opacity': 0.40
+        },
+    }, firstSymbolId);
+
+
+ map.addLayer({
+        'id': 'Infant Mortality',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './UNMembers.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "InfantMortality"],
+   0,
+  "hsl(353, 58%, 10%)",
+  10,
+  "hsl(353, 58%, 25%)",
+  20,
+  "hsl(353, 58%, 20%)",
+  40,
+  "hsl(353, 58%, 30%)",
+  60,
+  "hsl(353, 58%, 35%)",
+  80,
+  "hsl(353, 58%, 40%)",
+  100,
+  "hsl(353, 58%, 45%)",
+  120,
+  "hsl(353, 58%, 50%)",
+  140,
+  "hsl(353, 58%, 55%)",
+  160,
+  "hsl(353, 58%, 60%)",
+  180,
+  "hsl(353, 58%, 65%)",
+  200,
+  "hsl(353, 58%, 75%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+
+ map.addLayer({
+        'id': 'EU Member States',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './members.geo.json'
+        },
+        'layout': { 'visibility': 'none'},
+        'paint': {
+            'fill-color': '#088',
+            'fill-opacity': 0.8
+       }
+    },firstSymbolId);
+
+
+
+
+map.addLayer({
+        'id': 'US Gini Coefficient',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1977"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income78',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1978"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income79',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1979"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income80',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1980"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income81',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1981"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income82',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1982"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income83',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1983"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income84',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1984"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income85',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1985"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income86',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1986"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income87',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1987"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income88',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1988"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income89',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1989"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income90',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1990"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income91',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1991"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income92',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1992"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income93',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1993"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income94',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1994"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income95',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1995"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income96',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1996"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income97',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1997"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income98',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1998"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income99',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income1999"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income00',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2000"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income01',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2001"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income02',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2002"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income03',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2003"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income04',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2004"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income05',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2005"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income06',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2006"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income07',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2007"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+map.addLayer({
+        'id': 'Income08',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Income2008"],
+  0.3,
+  "hsl(30, 100%, 90%)",
+  0.35,
+  "hsl(30, 100%, 70%)",
+  0.40,
+  "hsl(30, 100%, 50%)",
+  0.45,
+  "hsl(30, 100%, 30%)",
+  1.5,
+  "hsl(30, 100%, 10%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+
+
+
+
+
+map.addLayer({
+        'id': 'US States',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './States.geo.json'
+        },
+        'layout': { 'visibility': 'none'},
+        'paint': {
+        'fill-color': 'hsl(324, 50%, 50%)',
+            'fill-opacity': 0.3
+       }
+      },firstSymbolId);
+
+  map.addLayer({
+        'id': 'UN Member States',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './UNMembers.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+            'fill-color': '#FF9',
+            'fill-opacity': 0.6
+        },
+    },firstSymbolId);
+
+
+map.addLayer({
+        'id': 'Literacy',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': './UNMembers.geo.json'
+        },
+        'layout': {
+            'visibility': 'none'
+        },
+        'paint': {
+        'fill-color': [
+  "interpolate",
+  ["linear"],
+  ["get", "Literacy"],
+   19.1,
+  "hsl(227, 62%, 80%)",
+  30,
+  "hsla(227, 62%, 75%, 0.91)",
+  40,
+  "hsl(227, 62%, 70%)",
+  50,
+  "hsl(227, 62%, 65%)",
+  60,
+  "hsl(227, 62%, 60%)",
+  70,
+  "hsl(227, 62%, 55%)",
+  80,
+  "hsl(227, 62%, 50%)",
+  90,
+  "hsl(227, 62%, 45%)",
+  100,
+  "hsl(227, 62%, 40%)"
+],
+            'fill-opacity': 0.80
+        },
+    },firstSymbolId);
+
+    map.addLayer({
+            'id': 'Traffic Mortality',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': './UNMembersS1.geo.json'
+            },
+            'layout': {
+                'visibility': 'none'
+            },
+            'paint': {
+            'fill-color': [
+      "interpolate",
+      ["linear"],
+      ["get", "TrafficMortality2000"],
+      0,
+      "hsl(43, 100%, 70%)",
+      10,
+      "hsl(43, 100%, 60%)",
+      20,
+      "hsl(43, 100%, 50%)",
+      30,
+      "hsl(43, 100%, 40%)",
+      40,
+      "hsl(43, 100%, 30%)",
+      50,
+      "hsl(43, 100%, 20%)",
+
+    ],
+                'fill-opacity': 0.80
+            },
+        },firstSymbolId);
+
+
+
+   });
+}
+for (var i = 0; i < inputs.length; i++) {
+    inputs[i].onclick = switchLayer;
+}
+
+  </script>
+</body>
